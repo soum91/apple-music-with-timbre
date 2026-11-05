@@ -1,0 +1,8 @@
+Package: com.soum91.applemusictimbreprobe
+Name: Apple Music Timbre Probe
+Version: 0.1.0
+Architecture: iphoneos-arm
+Description: Audio-session diagnostics for an isolated Apple Music and Timbre feasibility experiment.
+Maintainer: soum91
+Author: soum91
+Section: Tweaks
