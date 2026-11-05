@@ -1,0 +1,28 @@
+name: Build Apple Music Timbre Probe
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Install Theos
+        env:
+          CI: true
+        run: bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+      - name: Build rootless package
+        run: make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppleMusicTimbreProbe-rootless
+          path: packages/*.deb
+          if-no-files-found: error
