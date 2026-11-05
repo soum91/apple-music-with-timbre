@@ -10,5 +10,6 @@ AppleMusicTimbreProbe_FILES = Tweak.xm
 AppleMusicTimbreProbe_CFLAGS = -fobjc-arc
 AppleMusicTimbreProbe_FRAMEWORKS = Foundation AVFoundation UIKit
 AppleMusicTimbreProbe_CFLAGS += -Wno-deprecated-declarations
+AppleMusicTimbreProbe_INSTALL_PATH = /Library/MobileSubstrate/DynamicLibraries
 
 include $(THEOS_MAKE_PATH)/tweak.mk
