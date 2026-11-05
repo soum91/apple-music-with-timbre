@@ -21,21 +21,15 @@ static void TBLogSessionState(NSString *event) {
           ports.count ? [ports componentsJoinedByString:@","] : @"none");
 }
 
-%group AppleMusicSessionProbe
-%hook UIApplication
-- (void)didBecomeActive {
-    %orig;
-    TBLogSessionState(@"didBecomeActive");
-}
-%end
-%end
-
 %ctor {
     if (!TBIsAppleMusic()) return;
-    %init(AppleMusicSessionProbe);
+
     dispatch_async(dispatch_get_main_queue(), ^{
-        AVAudioSession *session = AVAudioSession.sharedInstance;
         NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
+        AVAudioSession *session = AVAudioSession.sharedInstance;
+        [center addObserverForName:UIApplicationDidBecomeActiveNotification object:nil queue:NSOperationQueue.mainQueue usingBlock:^(__unused NSNotification *note) {
+            TBLogSessionState(@"appDidBecomeActive");
+        }];
         [center addObserverForName:AVAudioSessionRouteChangeNotification object:session queue:NSOperationQueue.mainQueue usingBlock:^(__unused NSNotification *note) {
             TBLogSessionState(@"routeChanged");
         }];
