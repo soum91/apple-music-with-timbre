@@ -1,0 +1,40 @@
+{
+  "name": "Apple Music with Timbre",
+  "identifier": "com.soum91.apple-music-with-timbre.source",
+  "subtitle": "Apple Music player and Timbre audio tools",
+  "description": "Standalone MusicKit prototype for iPhone 17 on iOS 27. Apple Music authorization, library songs, search and playback. Timbre EQ applies to imported unprotected audio only; subscription EQ remains unavailable. Signing bundle ID needs MusicKit enabled. Device playback is unverified.",
+  "website": "https://github.com/soum91/apple-music-with-timbre",
+  "sourceURL": "https://drive.google.com/uc?export=download&id=1XObhCrkmmS_mW_NHWu5I9JN2ATcEa6C1",
+  "tintColor": "#6366F1",
+  "iconURL": "https://drive.google.com/uc?export=download&id=1upX32ngoZTVfeNL99OCSoHVJ7f_NVq-Z",
+  "apps": [
+    {
+      "name": "Apple Music with Timbre",
+      "bundleIdentifier": "com.soum91.applemusictimbre",
+      "developerName": "soum91",
+      "subtitle": "MusicKit player and local audio EQ",
+      "localizedDescription": "Standalone MusicKit prototype for iPhone 17 on iOS 27. Apple Music authorization, library songs, search and playback. Timbre EQ applies to imported unprotected audio only; subscription EQ remains unavailable. Signing bundle ID needs MusicKit enabled. Device playback is unverified.",
+      "iconURL": "https://drive.google.com/uc?export=download&id=1upX32ngoZTVfeNL99OCSoHVJ7f_NVq-Z",
+      "tintColor": "#6366F1",
+      "category": "music",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "buildVersion": "1",
+          "date": "2026-11-06T18:23:53Z",
+          "localizedDescription": "Standalone MusicKit prototype for iPhone 17 on iOS 27. Apple Music authorization, library songs, search and playback. Timbre EQ applies to imported unprotected audio only; subscription EQ remains unavailable. Signing bundle ID needs MusicKit enabled. Device playback is unverified.",
+          "downloadURL": "https://drive.google.com/uc?export=download&id=1qSe6jgKIPPTY3YwfFOAVxtnn0xldPeuB",
+          "size": 1381240,
+          "minOSVersion": "18.0"
+        }
+      ],
+      "version": "0.1.0",
+      "buildVersion": "1",
+      "versionDate": "2026-11-06T18:23:53Z",
+      "versionDescription": "Standalone MusicKit prototype for iPhone 17 on iOS 27. Apple Music authorization, library songs, search and playback. Timbre EQ applies to imported unprotected audio only; subscription EQ remains unavailable. Signing bundle ID needs MusicKit enabled. Device playback is unverified.",
+      "downloadURL": "https://drive.google.com/uc?export=download&id=1qSe6jgKIPPTY3YwfFOAVxtnn0xldPeuB",
+      "size": 1381240
+    }
+  ],
+  "news": []
+}

@@ -9,3 +9,15 @@ The first prototype includes Apple Music account authorization, library songs, c
 See [standalone app setup and device checklist](AppleMusicTimbre/README.md), including the required MusicKit service registration for the actual signed bundle ID. The standalone Actions workflow packages an unsigned IPA; on-device playback is unverified.
 
 The root-level Theos probe is an earlier diagnostic experiment for iOS 16.1.1. It is not part of the standalone IPA and is not required on iPhone 17.
+
+## First build
+
+Version 0.1.0 (1) compiled successfully on an Intel macOS runner with Xcode 16.4 / iOS 18.5 SDK. It has not been run on the target iPhone 17 / iOS 27. Build: https://github.com/soum91/apple-music-with-timbre/actions/runs/42270010729
+
+The IPA, icon and source.json are uploaded to Google Drive. **Anonymous link sharing is still pending** for all three files; the feed is prepared but not verified as reachable by FlareStore. The raw feed in this private GitHub repo also requires authentication.
+
+- IPA: https://drive.google.com/file/d/1qSe6jgKIPPTY3YwfFOAVxtnn0xldPeuB/view
+- Feed: https://drive.google.com/file/d/1XObhCrkmmS_mW_NHWu5I9JN2ATcEa6C1/view
+- Icon: https://drive.google.com/file/d/1upX32ngoZTVfeNL99OCSoHVJ7f_NVq-Z/view
+
+The feed uses Google Drive download endpoints for these exact IDs. These endpoints need unauthenticated validation after sharing is enabled; a successful upload is not a successful FlareStore installation.
