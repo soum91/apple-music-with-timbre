@@ -16,12 +16,16 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.soum91.applemusictimbre
+        MARKETING_VERSION: '0.3.0'
+        CURRENT_PROJECT_VERSION: '3'
         TARGETED_DEVICE_FAMILY: '1,2'
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     info:
       path: Info.plist
       properties:
         CFBundleDisplayName: Apple Music + Timbre
+        CFBundleShortVersionString: '0.3.0'
+        CFBundleVersion: '3'
         NSAppleMusicUsageDescription: Browse your library and play Apple Music tracks you choose.
         UILaunchScreen: {}
         UIBackgroundModes: [audio]
