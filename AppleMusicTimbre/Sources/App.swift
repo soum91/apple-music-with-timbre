@@ -12,14 +12,23 @@ struct AppleMusicTimbreApp: App {
 struct ContentView: View {
     @StateObject private var music = MusicModel()
     @StateObject private var audio = LocalAudio()
+    @StateObject private var catalog = Catalog()
+    @ObservedObject private var queue = ApplicationMusicPlayer.shared.queue
     @ObservedObject private var playerState = ApplicationMusicPlayer.shared.state
     @Environment(\.scenePhase) private var phase
     @State private var importing = false
     @State private var showingEQ = false
     @State private var localSource = false
+    @State private var showPlayer = false
 
     var body: some View {
         TabView {
+            NavigationStack { DiscoveryView(catalog: catalog, music: music, mode: "Home", prepare: prepareMusic) }
+                .tabItem { Label("Home", systemImage: "house") }
+            NavigationStack { DiscoveryView(catalog: catalog, music: music, mode: "Browse", prepare: prepareMusic) }
+                .tabItem { Label("Browse", systemImage: "square.grid.2x2") }
+            NavigationStack { DiscoveryView(catalog: catalog, music: music, mode: "Radio", prepare: prepareMusic) }
+                .tabItem { Label("Radio", systemImage: "dot.radiowaves.left.and.right") }
             NavigationStack {
                 List {
                     Section {
@@ -36,9 +45,9 @@ struct ContentView: View {
                         songRows(music.library)
                     }
                 }
-                .navigationTitle("Listen")
+                .navigationTitle("Library")
                 .refreshable { await music.refreshAccount() }
-            }.tabItem { Label("Listen", systemImage: "music.note.house") }
+            }.tabItem { Label("Library", systemImage: "music.note.list") }
 
             NavigationStack {
                 List {
@@ -49,6 +58,20 @@ struct ContentView: View {
                     }
                     if !music.stations.isEmpty {
                         Section("Radio") { stationRows(music.stations) }
+                    }
+                    Section("Albums") {
+                        ForEach(music.searchAlbums) { album in
+                            NavigationLink { CollectionDetail(album: album, playlist: nil, music: music, prepare: prepareMusic) } label: {
+                                HStack { Cover(artwork: album.artwork, size: 48); VStack(alignment: .leading) { Text(album.title); Text(album.artistName).font(.caption).foregroundStyle(.secondary) } }
+                            }
+                        }
+                    }
+                    Section("Playlists") {
+                        ForEach(music.searchPlaylists) { playlist in
+                            NavigationLink { CollectionDetail(album: nil, playlist: playlist, music: music, prepare: prepareMusic) } label: {
+                                HStack { Cover(artwork: playlist.artwork, size: 48); Text(playlist.name) }
+                            }
+                        }
                     }
                     songRows(music.songs)
                 }
@@ -82,6 +105,7 @@ struct ContentView: View {
             }.tabItem { Label("Timbre", systemImage: "waveform") }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
+        .sheet(isPresented: $showPlayer) { fullPlayer }
         .sheet(isPresented: $showingEQ) { EqualizerView(audio: audio) }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.audio]) { result in
             switch result {
@@ -97,7 +121,7 @@ struct ContentView: View {
             set: { if !$0 { audio.message = nil } })) {
                 Button("OK") { audio.message = nil }
             } message: { Text(audio.message ?? "") }
-        .task { await music.refreshAccount() }
+        .task { await music.refreshAccount(); await catalog.load() }
         .onChange(of: phase) { _, phase in
             if phase == .active { Task { await music.refreshAccount() } }
         }
@@ -106,7 +130,7 @@ struct ContentView: View {
     private var accountControls: some View {
         VStack(alignment: .leading, spacing: 8) {
             if music.authorization == .authorized {
-                Label(music.canPlay ? "Apple Music connected" : "Connected · check subscription", systemImage: "checkmark.circle")
+                Label(music.canPlay ? "Apple Music subscription active" : "Connected · no catalog subscription", systemImage: "checkmark.circle")
                     .font(.subheadline)
             } else {
                 Button("Connect Apple Music") { Task { await music.connect() } }
@@ -164,7 +188,7 @@ struct ContentView: View {
         HStack(spacing: 12) {
             Image(systemName: localSource ? "waveform" : "music.note").foregroundStyle(timbreTint)
             VStack(alignment: .leading, spacing: 3) {
-                Text(localSource ? audio.title : music.nowPlaying).font(.subheadline.bold()).lineLimit(1)
+                Text(localSource ? audio.title : (queue.currentEntry?.title ?? music.nowPlaying)).font(.subheadline.bold()).lineLimit(1)
                 Text(localSource ? "Timbre EQ \(audio.enabled ? "active" : "bypassed")" : "\(music.artist) · MusicKit playback")
                     .font(.caption).foregroundStyle(.secondary).lineLimit(1)
             }
@@ -180,6 +204,39 @@ struct ContentView: View {
             .accessibilityLabel((localSource ? audio.playing : playerState.playbackStatus == .playing) ? "Pause" : "Play")
         }
         .padding(.horizontal).padding(.vertical, 8).background(.regularMaterial)
+        .onTapGesture { showPlayer = true }
+    }
+
+    private func prepareMusic() { audio.pause(); localSource = false }
+
+    private var fullPlayer: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    Cover(artwork: localSource ? nil : queue.currentEntry?.artwork, size: 280)
+                    Text(localSource ? audio.title : (queue.currentEntry?.title ?? music.nowPlaying)).font(.title2.bold()).multilineTextAlignment(.center)
+                    Text(localSource ? "Timbre local audio" : "Apple Music").foregroundStyle(.secondary)
+                    if !localSource {
+                        HStack(spacing: 40) {
+                            Button { Task { await music.skip(next: false) } } label: { Image(systemName: "backward.fill") }
+                            Button { Task { await music.togglePlayback() } } label: { Image(systemName: playerState.playbackStatus == .playing ? "pause.fill" : "play.fill") }
+                            Button { Task { await music.skip(next: true) } } label: { Image(systemName: "forward.fill") }
+                        }.font(.largeTitle)
+                        HStack(spacing: 40) {
+                            Button { music.player.state.shuffleMode = playerState.shuffleMode == .songs ? .off : .songs } label: { Image(systemName: "shuffle").opacity(playerState.shuffleMode == .songs ? 1 : 0.4) }
+                            Button { music.player.state.repeatMode = playerState.repeatMode == .all ? .none : .all } label: { Image(systemName: "repeat").opacity(playerState.repeatMode == .all ? 1 : 0.4) }
+                        }
+                        Text("Up Next").font(.title2.bold()).frame(maxWidth: .infinity, alignment: .leading)
+                        ForEach(Array(queue.entries)) { entry in
+                            Text(entry.title).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 6)
+                        }
+                    } else {
+                        Button(audio.playing ? "Pause" : "Play") { if audio.playing { audio.pause() } else { audio.play() } }.buttonStyle(.borderedProminent)
+                    }
+                }.padding()
+            }.navigationTitle("Now Playing").navigationBarTitleDisplayMode(.inline)
+                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showPlayer = false } } }
+        }
     }
 }
 

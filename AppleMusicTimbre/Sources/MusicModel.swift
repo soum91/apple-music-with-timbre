@@ -7,6 +7,8 @@ final class MusicModel: ObservableObject {
     @Published var canPlay = false
     @Published var songs: [Song] = []
     @Published var stations: [Station] = []
+    @Published var searchAlbums: [Album] = []
+    @Published var searchPlaylists: [Playlist] = []
     @Published var library: [Song] = []
     @Published var message: String?
     @Published var busy = false
@@ -37,7 +39,7 @@ final class MusicModel: ObservableObject {
         searchGeneration += 1
         let generation = searchGeneration
         let term = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !term.isEmpty else { songs = []; return }
+        guard !term.isEmpty else { songs = []; stations = []; searchAlbums = []; searchPlaylists = []; return }
         guard authorization == .authorized else {
             message = "Connect your Apple Music account first."
             return
@@ -45,12 +47,14 @@ final class MusicModel: ObservableObject {
         busy = true
         defer { if generation == searchGeneration { busy = false } }
         do {
-            var request = MusicCatalogSearchRequest(term: term, types: [Song.self, Station.self])
+            var request = MusicCatalogSearchRequest(term: term, types: [Song.self, Station.self, Album.self, Playlist.self])
             request.limit = 25
             let response = try await request.response()
             guard generation == searchGeneration else { return }
             songs = Array(response.songs)
             stations = Array(response.stations)
+            searchAlbums = Array(response.albums)
+            searchPlaylists = Array(response.playlists)
         } catch {
             guard generation == searchGeneration else { return }
             message = "Search: \(error.localizedDescription)"
@@ -76,10 +80,27 @@ final class MusicModel: ObservableObject {
     }
 
     func togglePlayback() async {
+        guard player.queue.currentEntry != nil else { return }
         if player.state.playbackStatus == .playing { player.pause() }
         else {
             do { try await player.play() }
             catch { message = "Playback: \(error.localizedDescription)" }
         }
+    }
+
+    func playTracks(_ tracks: [Track]) async {
+        guard let first = tracks.first else { return }
+        do {
+            player.queue = ApplicationMusicPlayer.Queue(for: tracks)
+            try await player.play()
+            nowPlaying = first.title
+            artist = first.artistName
+        } catch { message = "Playback: \(error.localizedDescription)" }
+    }
+    func skip(next: Bool) async {
+        do {
+            if next { try await player.skipToNextEntry() }
+            else { try await player.skipToPreviousEntry() }
+        } catch { message = error.localizedDescription }
     }
 }

@@ -29,10 +29,10 @@ jobs:
           mkdir -p output/Payload
           cp -R build/Build/Products/Release-iphoneos/AppleMusicTimbre.app output/Payload/
           cd output
-          ditto -c -k --sequesterRsrc --keepParent Payload Apple-Music-Timbre-0.1.0-unsigned.ipa
+          ditto -c -k --sequesterRsrc --keepParent Payload Apple-Music-Timbre-0.2.0-unsigned.ipa
       - uses: actions/upload-artifact@v4
         with:
-          name: Apple-Music-Timbre-0.1.0-unsigned
+          name: Apple-Music-Timbre-0.2.0-unsigned
           path: AppleMusicTimbre/output/*.ipa
           if-no-files-found: error
       - name: Upload compiler log
