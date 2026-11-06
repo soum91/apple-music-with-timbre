@@ -2,7 +2,15 @@
 
 Native SwiftUI/MusicKit client for iPhone 17 on iOS 27, without jailbreak. Deployment target iOS 18 also permits building with an available stable Xcode SDK. Branding uses the existing Timbre indigo #6366F1 and waveform motif.
 
-## Version 0.2.0
+## Version 0.3.0: free radio web test
+
+The first tab loads Apple's official `music.apple.com/ca/radio` in WKWebView, preserving the site's own interface, account flow and playback controls. This route does not call the native MusicKit catalog API. It may require a separate website sign-in; Safari cookies are not assumed to be shared with this app.
+
+Start a free live station, then tap **Test Timbre access**. The probe looks for a currently playing media element in the page, tries standard Web Audio routing, and enables the 10-band web EQ only if nonzero audio samples reach an analyser. A protected, cross-origin or isolated player can remain silent to Web Audio even while it audibly plays. If the probe interrupts playback, tap Reload. The Safari button opens the current page for comparison. Neither a successful compile nor Safari playback proves WKWebView playback or audible EQ on the iPhone 17. No stream extraction or DRM bypass is used.
+
+The native Home/Browse/Radio/Search screens remain as an experimental MusicKit path. The native service requires MusicKit registration for its signed bundle ID; a free Personal Team certificate alone has not provided working catalog access on this device. The imported-file EQ still works through AVAudioEngine independently of web playback.
+
+## Previous native client
 
 Five primary tabs: Home, Browse, Radio, Library, Search. Home requests account recommendations and surfaces catalog charts and stations; Browse presents album, playlist and song charts. Radio loads station search results, prioritizing live stations. Album and playlist pages fetch track relationships and offer play/shuffle. Search includes songs, stations, albums and playlists. Tap the mini player for artwork, queue, previous/next, shuffle and repeat. Timbre import and EQ controls live in Library.
 

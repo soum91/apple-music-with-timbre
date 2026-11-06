@@ -64,7 +64,7 @@ struct ContentView: View {
                         Text("Custom EQ applies to imported audio. MusicKit playback uses Apple's audio path.").font(.footnote).foregroundStyle(.secondary)
                     }
                     Section("About") {
-                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"))")
+                        Text("Installed version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"))")
                     }
                 }
                 .navigationTitle("Library")

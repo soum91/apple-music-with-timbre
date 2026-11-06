@@ -187,7 +187,7 @@ struct WebRadioView: View {
                     Button { session.forward() } label: { Image(systemName: "chevron.right") }
                     Text(session.address).font(.caption).foregroundStyle(.secondary).lineLimit(1)
                     Spacer()
-                    Text("v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"))")
+                    Text("Installed version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"))")
                         .font(.caption2).foregroundStyle(.secondary)
                 }
             }.padding(10).background(.regularMaterial)
