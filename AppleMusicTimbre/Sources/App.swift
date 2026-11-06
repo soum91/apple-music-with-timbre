@@ -43,9 +43,12 @@ struct ContentView: View {
             NavigationStack {
                 List {
                     if music.busy { ProgressView("Searching Apple Music…") }
-                    if music.songs.isEmpty && !music.busy {
+                    if music.songs.isEmpty && music.stations.isEmpty && !music.busy {
                         ContentUnavailableView("Find your next song", systemImage: "magnifyingglass",
                             description: Text("Search Apple Music by song or artist."))
+                    }
+                    if !music.stations.isEmpty {
+                        Section("Radio") { stationRows(music.stations) }
                     }
                     songRows(music.songs)
                 }
@@ -131,6 +134,27 @@ struct ContentView: View {
                     }
                     Spacer()
                     Image(systemName: "play.fill").foregroundStyle(timbreTint)
+                }
+            }
+        }
+    }
+
+    private func stationRows(_ stations: [Station]) -> some View {
+        ForEach(stations) { station in
+            Button {
+                audio.pause()
+                localSource = false
+                Task { await music.play(station) }
+            } label: {
+                HStack(spacing: 12) {
+                    if let artwork = station.artwork { ArtworkImage(artwork, width: 48, height: 48).clipShape(RoundedRectangle(cornerRadius: 8)) }
+                    else { Image(systemName: "dot.radiowaves.left.and.right").frame(width: 48, height: 48).background(.quaternary).clipShape(RoundedRectangle(cornerRadius: 8)) }
+                    VStack(alignment: .leading) {
+                        Text(station.name).foregroundStyle(.primary).lineLimit(1)
+                        Text(station.stationProviderName ?? "Apple Music Radio").font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    }
+                    Spacer()
+                    Image(systemName: "dot.radiowaves.left.and.right").foregroundStyle(timbreTint)
                 }
             }
         }

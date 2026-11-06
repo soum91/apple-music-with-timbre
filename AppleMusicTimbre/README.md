@@ -4,7 +4,8 @@ First native SwiftUI/MusicKit prototype for iPhone 17 on iOS 27, without jailbre
 
 ## Included
 
-- Apple Music authorization, subscription status, catalog song search and up to 100 library songs.
+- Apple Music authorization, subscription status, catalog song and station search, and up to 100 library songs.
+- Radio stations are handled separately from subscription-only catalog songs, so users without a subscription can test available radio playback.
 - Subscription playback using ApplicationMusicPlayer, with play/pause and visible playback errors.
 - Native Files import for unprotected audio, played using AVAudioEngine through a 10-band AVAudioUnitEQ and preamp. Band gains persist between launches.
 - Explicit source indicator: MusicKit subscription playback does not pass through the local-file EQ graph.

@@ -6,6 +6,7 @@ final class MusicModel: ObservableObject {
     @Published var authorization = MusicAuthorization.currentStatus
     @Published var canPlay = false
     @Published var songs: [Song] = []
+    @Published var stations: [Station] = []
     @Published var library: [Song] = []
     @Published var message: String?
     @Published var busy = false
@@ -44,11 +45,12 @@ final class MusicModel: ObservableObject {
         busy = true
         defer { if generation == searchGeneration { busy = false } }
         do {
-            var request = MusicCatalogSearchRequest(term: term, types: [Song.self])
+            var request = MusicCatalogSearchRequest(term: term, types: [Song.self, Station.self])
             request.limit = 25
             let response = try await request.response()
             guard generation == searchGeneration else { return }
             songs = Array(response.songs)
+            stations = Array(response.stations)
         } catch {
             guard generation == searchGeneration else { return }
             message = "Search: \(error.localizedDescription)"
@@ -57,16 +59,20 @@ final class MusicModel: ObservableObject {
 
     func play(_ song: Song) async {
         do {
-            canPlay = try await MusicSubscription.current.canPlayCatalogContent
-            guard canPlay else {
-                message = "An active Apple Music subscription is needed for catalog playback."
-                return
-            }
             player.queue = ApplicationMusicPlayer.Queue(for: [song])
             try await player.play()
             nowPlaying = song.title
             artist = song.artistName
         } catch { message = "Playback: \(error.localizedDescription)" }
+    }
+
+    func play(_ station: Station) async {
+        do {
+            player.queue = ApplicationMusicPlayer.Queue(for: [station])
+            try await player.play()
+            nowPlaying = station.name
+            artist = station.stationProviderName ?? "Apple Music Radio"
+        } catch { message = "Radio playback: \(error.localizedDescription)" }
     }
 
     func togglePlayback() async {
