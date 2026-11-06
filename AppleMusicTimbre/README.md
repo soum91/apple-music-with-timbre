@@ -1,6 +1,12 @@
 # Apple Music + Timbre, standalone app
 
-First native SwiftUI/MusicKit prototype for iPhone 17 on iOS 27, without jailbreak. Deployment target iOS 18 also permits building with an available stable Xcode SDK. Branding uses the existing Timbre indigo #6366F1 and waveform motif.
+Native SwiftUI/MusicKit client for iPhone 17 on iOS 27, without jailbreak. Deployment target iOS 18 also permits building with an available stable Xcode SDK. Branding uses the existing Timbre indigo #6366F1 and waveform motif.
+
+## Version 0.2.0
+
+Five primary tabs: Home, Browse, Radio, Library, Search. Home requests account recommendations and surfaces catalog charts and stations; Browse presents album, playlist and song charts. Radio loads station search results, prioritizing live stations. Album and playlist pages fetch track relationships and offer play/shuffle. Search includes songs, stations, albums and playlists. Tap the mini player for artwork, queue, previous/next, shuffle and repeat. Timbre import and EQ controls live in Library.
+
+Content is fetched from MusicKit, with visible loading, retry and individual request errors. This does not reproduce Apple's proprietary editorial Home layout. Radio discovery does not guarantee non-subscriber playback: Apple determines availability for the signed client, account and storefront. On-device radio playback and iOS 27 presentation remain unverified. Subscription EQ is still unavailable.
 
 ## Included
 

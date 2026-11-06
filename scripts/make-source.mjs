@@ -13,7 +13,7 @@ const file = statSync(ipa);
 if (!file.isFile() || file.size === 0) throw new Error('IPA must be a nonempty file.');
 const description = 'Standalone MusicKit prototype. Apple Music authorization, library, search and playback; 10-band Timbre EQ for imported unprotected audio only. Subscription EQ is unavailable. Sign with a bundle ID registered for MusicKit. Device verification pending.';
 const version = {
-  version: '0.1.0', buildVersion: '1', date: new Date().toISOString(),
+  version: '0.2.0', buildVersion: '2', date: new Date().toISOString(),
   localizedDescription: description, downloadURL, size: file.size, minOSVersion: '18.0'
 };
 console.log(JSON.stringify({

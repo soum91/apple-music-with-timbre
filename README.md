@@ -2,7 +2,7 @@
 
 Standalone SwiftUI/MusicKit app targeting iPhone 17 on iOS 27 without jailbreak, with Timbre indigo branding.
 
-The first prototype includes Apple Music account authorization, library songs, catalog search and playback, plus native audio-file import with a real 10-band EQ and preamp.
+Version 0.2.0 includes Home recommendations, Browse charts, Radio station discovery, album and playlist track pages, search across songs/stations/albums/playlists, and an expanded queue player. Library also includes native audio-file import with a real 10-band EQ and preamp.
 
 **Subscription playback uses MusicKit. Custom EQ currently applies only to imported unprotected audio files. Subscription EQ is not established.**
 
@@ -14,7 +14,7 @@ The root-level Theos probe is an earlier diagnostic experiment for iOS 16.1.1. I
 
 Version 0.1.0 (1) compiled successfully on an Intel macOS runner with Xcode 16.4 / iOS 18.5 SDK. It has not been run on the target iPhone 17 / iOS 27. Build: https://github.com/soum91/apple-music-with-timbre/actions/runs/42270010729
 
-The IPA, icon and source.json are uploaded to Google Drive. **Anonymous link sharing is still pending** for all three files; the feed is prepared but not verified as reachable by FlareStore. The raw feed in this private GitHub repo also requires authentication.
+The IPA was replaced in place with version 0.2.0, and source.json was updated to version 0.2.0 / build 2. The IPA, icon and feed have anonymous reader access. The raw feed in this private GitHub repo requires authentication. Use the Drive direct download URL from source.json for FlareStore, not the Drive viewer or folder link. Build: https://github.com/soum91/apple-music-with-timbre/actions/runs/42273639678
 
 - IPA: https://drive.google.com/file/d/1qSe6jgKIPPTY3YwfFOAVxtnn0xldPeuB/view
 - Feed: https://drive.google.com/file/d/1XObhCrkmmS_mW_NHWu5I9JN2ATcEa6C1/view
