@@ -1,39 +1,39 @@
 {
   "name": "Apple Music with Timbre",
   "identifier": "com.soum91.apple-music-with-timbre.source",
-  "subtitle": "Apple Music player and Timbre audio tools",
-  "description": "Version 0.2.0 adds Home recommendations, Browse charts, Radio station discovery, album and playlist track pages, expanded search and Now Playing queue with skip, shuffle and repeat. No subscription is assumed for station requests; Apple controls radio eligibility. Timbre EQ applies to imported unprotected audio only. Device playback and iOS 27 layout are unverified.",
+  "subtitle": "Apple Music web radio and Timbre audio test",
+  "description": "Version 0.3.0 opens Apple Music free radio in a web player and tests whether Web Audio can reach its signal. Web EQ activates only after samples are detected. Safari playback is confirmed, but app web playback and audible EQ need device verification. Native MusicKit remains experimental; imported unprotected audio retains Timbre EQ.",
   "website": "https://github.com/soum91/apple-music-with-timbre",
   "sourceURL": "https://drive.google.com/uc?export=download&id=1XObhCrkmmS_mW_NHWu5I9JN2ATcEa6C1",
-  "tintColor": "#6366F1",
   "iconURL": "https://drive.google.com/uc?export=download&id=1upX32ngoZTVfeNL99OCSoHVJ7f_NVq-Z",
+  "tintColor": "#6366F1",
   "apps": [
     {
       "name": "Apple Music with Timbre",
       "bundleIdentifier": "com.soum91.applemusictimbre",
       "developerName": "soum91",
-      "subtitle": "MusicKit player and local audio EQ",
-      "localizedDescription": "Version 0.2.0 adds Home recommendations, Browse charts, Radio station discovery, album and playlist track pages, expanded search and Now Playing queue with skip, shuffle and repeat. No subscription is assumed for station requests; Apple controls radio eligibility. Timbre EQ applies to imported unprotected audio only. Device playback and iOS 27 layout are unverified.",
+      "subtitle": "Apple Music web radio and audio access test",
+      "localizedDescription": "Version 0.3.0 opens Apple Music free radio in a web player and tests whether Web Audio can reach its signal. Web EQ activates only after samples are detected. Safari playback is confirmed, but app web playback and audible EQ need device verification. Native MusicKit remains experimental; imported unprotected audio retains Timbre EQ.",
       "iconURL": "https://drive.google.com/uc?export=download&id=1upX32ngoZTVfeNL99OCSoHVJ7f_NVq-Z",
       "tintColor": "#6366F1",
       "category": "music",
       "versions": [
         {
-          "version": "0.2.0",
-          "buildVersion": "2",
-          "date": "2026-11-06T18:48:23Z",
-          "localizedDescription": "Version 0.2.0 adds Home recommendations, Browse charts, Radio station discovery, album and playlist track pages, expanded search and Now Playing queue with skip, shuffle and repeat. No subscription is assumed for station requests; Apple controls radio eligibility. Timbre EQ applies to imported unprotected audio only. Device playback and iOS 27 layout are unverified.",
+          "version": "0.3.0",
+          "buildVersion": "3",
+          "date": "2026-11-06T21:03:35.509Z",
+          "localizedDescription": "Version 0.3.0 opens Apple Music free radio in a web player and tests whether Web Audio can reach its signal. Web EQ activates only after samples are detected. Safari playback is confirmed, but app web playback and audible EQ need device verification. Native MusicKit remains experimental; imported unprotected audio retains Timbre EQ.",
           "downloadURL": "https://drive.google.com/uc?export=download&id=1qSe6jgKIPPTY3YwfFOAVxtnn0xldPeuB",
-          "size": 1486496,
+          "size": 1529787,
           "minOSVersion": "18.0"
         }
       ],
-      "version": "0.2.0",
-      "buildVersion": "2",
-      "versionDate": "2026-11-06T18:48:23Z",
-      "versionDescription": "Version 0.2.0 adds Home recommendations, Browse charts, Radio station discovery, album and playlist track pages, expanded search and Now Playing queue with skip, shuffle and repeat. No subscription is assumed for station requests; Apple controls radio eligibility. Timbre EQ applies to imported unprotected audio only. Device playback and iOS 27 layout are unverified.",
+      "version": "0.3.0",
+      "buildVersion": "3",
+      "versionDate": "2026-11-06T21:03:35.509Z",
+      "versionDescription": "Version 0.3.0 opens Apple Music free radio in a web player and tests whether Web Audio can reach its signal. Web EQ activates only after samples are detected. Safari playback is confirmed, but app web playback and audible EQ need device verification. Native MusicKit remains experimental; imported unprotected audio retains Timbre EQ.",
       "downloadURL": "https://drive.google.com/uc?export=download&id=1qSe6jgKIPPTY3YwfFOAVxtnn0xldPeuB",
-      "size": 1486496
+      "size": 1529787
     }
   ],
   "news": []
