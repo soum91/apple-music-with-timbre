@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+      - name: Verify installed version UI contract
+        run: python3 scripts/check_version_ui.py
       - name: Install Theos
         env:
           CI: true

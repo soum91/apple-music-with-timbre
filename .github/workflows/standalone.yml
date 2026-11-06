@@ -11,6 +11,8 @@ jobs:
     runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
+      - name: Verify installed version UI contract
+        run: python3 scripts/check_version_ui.py
       - name: Install project generator
         run: brew install xcodegen
       - name: Generate icon and Xcode project
