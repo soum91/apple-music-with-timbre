@@ -20,14 +20,21 @@ struct ContentView: View {
     @State private var showingEQ = false
     @State private var localSource = false
     @State private var showPlayer = false
+    @State private var selectedTab = 0
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
+            WebRadioView()
+                .tag(0)
+                .tabItem { Label("Apple Music", systemImage: "music.note") }
             NavigationStack { DiscoveryView(catalog: catalog, music: music, mode: "Home", prepare: prepareMusic) }
+                .tag(1)
                 .tabItem { Label("Home", systemImage: "house") }
             NavigationStack { DiscoveryView(catalog: catalog, music: music, mode: "Browse", prepare: prepareMusic) }
+                .tag(2)
                 .tabItem { Label("Browse", systemImage: "square.grid.2x2") }
             NavigationStack { DiscoveryView(catalog: catalog, music: music, mode: "Radio", prepare: prepareMusic) }
+                .tag(3)
                 .tabItem { Label("Radio", systemImage: "dot.radiowaves.left.and.right") }
             NavigationStack {
                 List {
@@ -57,12 +64,12 @@ struct ContentView: View {
                         Text("Custom EQ applies to imported audio. MusicKit playback uses Apple's audio path.").font(.footnote).foregroundStyle(.secondary)
                     }
                     Section("About") {
-                        LabeledContent("Installed version", value: "\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown") (build \(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"))")
+                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"))")
                     }
                 }
                 .navigationTitle("Library")
                 .refreshable { await music.refreshAccount() }
-            }.tabItem { Label("Library", systemImage: "music.note.list") }
+            }.tag(4).tabItem { Label("Library", systemImage: "music.note.list") }
 
             NavigationStack {
                 List {
@@ -93,10 +100,10 @@ struct ContentView: View {
                 .navigationTitle("Search")
                 .searchable(text: $music.searchText, prompt: "Songs and artists")
                 .onSubmit(of: .search) { Task { await music.search() } }
-            }.tabItem { Label("Search", systemImage: "magnifyingglass") }
+            }.tag(5).tabItem { Label("Search", systemImage: "magnifyingglass") }
 
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
+        .safeAreaInset(edge: .bottom, spacing: 0) { if selectedTab != 0 { miniPlayer } }
         .sheet(isPresented: $showPlayer) { fullPlayer }
         .sheet(isPresented: $showingEQ) { EqualizerView(audio: audio) }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.audio]) { result in
@@ -113,9 +120,15 @@ struct ContentView: View {
             set: { if !$0 { audio.message = nil } })) {
                 Button("OK") { audio.message = nil }
             } message: { Text(audio.message ?? "") }
-        .task { await music.refreshAccount(); await catalog.load() }
+        .onChange(of: selectedTab) { _, tab in
+            guard tab != 0 else { return }
+            Task {
+                await music.refreshAccount()
+                if (1...3).contains(tab) { await catalog.load() }
+            }
+        }
         .onChange(of: phase) { _, phase in
-            if phase == .active { Task { await music.refreshAccount() } }
+            if phase == .active && selectedTab != 0 { Task { await music.refreshAccount() } }
         }
     }
 

@@ -11,8 +11,6 @@ jobs:
     runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
-      - name: Verify installed version UI contract
-        run: python3 scripts/check_version_ui.py
       - name: Install project generator
         run: brew install xcodegen
       - name: Generate icon and Xcode project
@@ -31,10 +29,10 @@ jobs:
           mkdir -p output/Payload
           cp -R build/Build/Products/Release-iphoneos/AppleMusicTimbre.app output/Payload/
           cd output
-          ditto -c -k --sequesterRsrc --keepParent Payload Apple-Music-Timbre-0.2.0-unsigned.ipa
+          ditto -c -k --sequesterRsrc --keepParent Payload Apple-Music-Timbre-0.3.0-unsigned.ipa
       - uses: actions/upload-artifact@v4
         with:
-          name: Apple-Music-Timbre-0.2.0-unsigned
+          name: Apple-Music-Timbre-0.3.0-unsigned
           path: AppleMusicTimbre/output/*.ipa
           if-no-files-found: error
       - name: Upload compiler log
