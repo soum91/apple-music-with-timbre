@@ -44,6 +44,18 @@ struct ContentView: View {
                         }
                         songRows(music.library)
                     }
+                    Section("Timbre") {
+                        Button("Import audio", systemImage: "folder.badge.plus") { importing = true }
+                        Button("Equalizer", systemImage: "slider.horizontal.3") { showingEQ = true }
+                        if audio.loaded {
+                            Text(audio.title)
+                            Button(audio.playing ? "Pause" : "Play imported audio") {
+                                if audio.playing { audio.pause() }
+                                else { music.player.pause(); localSource = true; audio.play() }
+                            }
+                        }
+                        Text("Custom EQ applies to imported audio. MusicKit playback uses Apple's audio path.").font(.footnote).foregroundStyle(.secondary)
+                    }
                 }
                 .navigationTitle("Library")
                 .refreshable { await music.refreshAccount() }
@@ -80,29 +92,6 @@ struct ContentView: View {
                 .onSubmit(of: .search) { Task { await music.search() } }
             }.tabItem { Label("Search", systemImage: "magnifyingglass") }
 
-            NavigationStack {
-                List {
-                    Section("Your audio") {
-                        Button { importing = true } label: { Label("Import audio", systemImage: "folder.badge.plus") }
-                        Text(audio.title).font(.headline)
-                        if audio.loaded {
-                            Button(audio.playing ? "Pause" : "Play with Timbre") {
-                                if audio.playing { audio.pause() }
-                                else {
-                                    music.player.pause()
-                                    localSource = true
-                                    audio.play()
-                                }
-                            }
-                        }
-                    }
-                    Section("Sound") {
-                        Button { showingEQ = true } label: { Label("Timbre equalizer", systemImage: "slider.horizontal.3") }
-                        Text("Custom EQ applies to imported audio files. Apple Music subscription tracks play through MusicKit; custom EQ is unavailable for that source.")
-                            .font(.footnote).foregroundStyle(.secondary)
-                    }
-                }.navigationTitle("Timbre")
-            }.tabItem { Label("Timbre", systemImage: "waveform") }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
         .sheet(isPresented: $showPlayer) { fullPlayer }
@@ -224,7 +213,7 @@ struct ContentView: View {
                         }.font(.largeTitle)
                         HStack(spacing: 40) {
                             Button { music.player.state.shuffleMode = playerState.shuffleMode == .songs ? .off : .songs } label: { Image(systemName: "shuffle").opacity(playerState.shuffleMode == .songs ? 1 : 0.4) }
-                            Button { music.player.state.repeatMode = playerState.repeatMode == .all ? .none : .all } label: { Image(systemName: "repeat").opacity(playerState.repeatMode == .all ? 1 : 0.4) }
+                            Button { music.player.state.repeatMode = playerState.repeatMode == .all ? MusicPlayer.RepeatMode.none : .all } label: { Image(systemName: "repeat").opacity(playerState.repeatMode == .all ? 1 : 0.4) }
                         }
                         Text("Up Next").font(.title2.bold()).frame(maxWidth: .infinity, alignment: .leading)
                         ForEach(Array(queue.entries)) { entry in
