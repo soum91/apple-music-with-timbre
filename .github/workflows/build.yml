@@ -3,6 +3,7 @@ name: Build Apple Music Timbre Probe
 on:
   push:
     branches: [main]
+    paths: ['Tweak.xm', 'Makefile', 'control', 'AppleMusicTimbreProbe.plist', '.github/workflows/build.yml']
   workflow_dispatch:
 
 permissions:
@@ -28,3 +29,4 @@ jobs:
           name: AppleMusicTimbreProbe-rootless
           path: packages/*.deb
           if-no-files-found: error
+

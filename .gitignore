@@ -1,0 +1,5 @@
+AppleMusicTimbre/build/
+AppleMusicTimbre/output/
+AppleMusicTimbre/*.xcodeproj/
+AppleMusicTimbre/Info.plist
+AppleMusicTimbre/Assets.xcassets/

@@ -1,0 +1,195 @@
+import SwiftUI
+import MusicKit
+import UniformTypeIdentifiers
+
+private let timbreTint = Color(red: 99/255, green: 102/255, blue: 241/255)
+
+@main
+struct AppleMusicTimbreApp: App {
+    var body: some Scene { WindowGroup { ContentView().tint(timbreTint) } }
+}
+
+struct ContentView: View {
+    @StateObject private var music = MusicModel()
+    @StateObject private var audio = LocalAudio()
+    @ObservedObject private var playerState = ApplicationMusicPlayer.shared.state
+    @Environment(\.scenePhase) private var phase
+    @State private var importing = false
+    @State private var showingEQ = false
+    @State private var localSource = false
+
+    var body: some View {
+        TabView {
+            NavigationStack {
+                List {
+                    Section {
+                        Label("Apple Music + Timbre", systemImage: "waveform")
+                            .font(.title2.bold()).foregroundStyle(timbreTint)
+                        Text("Your music, your space.").foregroundStyle(.secondary)
+                        accountControls
+                    }
+                    Section("Your library") {
+                        if music.library.isEmpty {
+                            Text("Connect Apple Music to load up to 100 library songs.")
+                                .foregroundStyle(.secondary)
+                        }
+                        songRows(music.library)
+                    }
+                }
+                .navigationTitle("Listen")
+                .refreshable { await music.refreshAccount() }
+            }.tabItem { Label("Listen", systemImage: "music.note.house") }
+
+            NavigationStack {
+                List {
+                    if music.busy { ProgressView("Searching Apple Music…") }
+                    if music.songs.isEmpty && !music.busy {
+                        ContentUnavailableView("Find your next song", systemImage: "magnifyingglass",
+                            description: Text("Search Apple Music by song or artist."))
+                    }
+                    songRows(music.songs)
+                }
+                .navigationTitle("Search")
+                .searchable(text: $music.searchText, prompt: "Songs and artists")
+                .onSubmit(of: .search) { Task { await music.search() } }
+            }.tabItem { Label("Search", systemImage: "magnifyingglass") }
+
+            NavigationStack {
+                List {
+                    Section("Your audio") {
+                        Button { importing = true } label: { Label("Import audio", systemImage: "folder.badge.plus") }
+                        Text(audio.title).font(.headline)
+                        if audio.loaded {
+                            Button(audio.playing ? "Pause" : "Play with Timbre") {
+                                if audio.playing { audio.pause() }
+                                else {
+                                    music.player.pause()
+                                    localSource = true
+                                    audio.play()
+                                }
+                            }
+                        }
+                    }
+                    Section("Sound") {
+                        Button { showingEQ = true } label: { Label("Timbre equalizer", systemImage: "slider.horizontal.3") }
+                        Text("Custom EQ applies to imported audio files. Apple Music subscription tracks play through MusicKit; custom EQ is unavailable for that source.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                }.navigationTitle("Timbre")
+            }.tabItem { Label("Timbre", systemImage: "waveform") }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
+        .sheet(isPresented: $showingEQ) { EqualizerView(audio: audio) }
+        .fileImporter(isPresented: $importing, allowedContentTypes: [.audio]) { result in
+            switch result {
+            case .success(let url): audio.importFile(url)
+            case .failure(let error): audio.message = error.localizedDescription
+            }
+        }
+        .alert("Apple Music", isPresented: Binding(get: { music.message != nil },
+            set: { if !$0 { music.message = nil } })) {
+                Button("OK") { music.message = nil }
+            } message: { Text(music.message ?? "") }
+        .alert("Timbre", isPresented: Binding(get: { audio.message != nil },
+            set: { if !$0 { audio.message = nil } })) {
+                Button("OK") { audio.message = nil }
+            } message: { Text(audio.message ?? "") }
+        .task { await music.refreshAccount() }
+        .onChange(of: phase) { _, phase in
+            if phase == .active { Task { await music.refreshAccount() } }
+        }
+    }
+
+    private var accountControls: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if music.authorization == .authorized {
+                Label(music.canPlay ? "Apple Music connected" : "Connected · check subscription", systemImage: "checkmark.circle")
+                    .font(.subheadline)
+            } else {
+                Button("Connect Apple Music") { Task { await music.connect() } }
+                if music.authorization == .denied || music.authorization == .restricted {
+                    Text("Allow Music access in Settings to connect.").font(.footnote)
+                    Link("Open Settings", destination: URL(string: UIApplication.openSettingsURLString)!)
+                }
+            }
+        }
+    }
+
+    private func songRows(_ songs: [Song]) -> some View {
+        ForEach(songs) { song in
+            Button {
+                audio.pause()
+                localSource = false
+                Task { await music.play(song) }
+            } label: {
+                HStack(spacing: 12) {
+                    if let artwork = song.artwork { ArtworkImage(artwork, width: 48, height: 48).clipShape(RoundedRectangle(cornerRadius: 8)) }
+                    else { Image(systemName: "music.note").frame(width: 48, height: 48).background(.quaternary).clipShape(RoundedRectangle(cornerRadius: 8)) }
+                    VStack(alignment: .leading) {
+                        Text(song.title).foregroundStyle(.primary).lineLimit(1)
+                        Text(song.artistName).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    }
+                    Spacer()
+                    Image(systemName: "play.fill").foregroundStyle(timbreTint)
+                }
+            }
+        }
+    }
+
+    private var miniPlayer: some View {
+        HStack(spacing: 12) {
+            Image(systemName: localSource ? "waveform" : "music.note").foregroundStyle(timbreTint)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(localSource ? audio.title : music.nowPlaying).font(.subheadline.bold()).lineLimit(1)
+                Text(localSource ? "Timbre EQ \(audio.enabled ? "active" : "bypassed")" : "\(music.artist) · MusicKit playback")
+                    .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+            }
+            Spacer()
+            Button {
+                if localSource {
+                    if audio.playing { audio.pause() } else { audio.play() }
+                } else { Task { await music.togglePlayback() } }
+            } label: {
+                Image(systemName: (localSource ? audio.playing : playerState.playbackStatus == .playing) ? "pause.fill" : "play.fill")
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityLabel((localSource ? audio.playing : playerState.playbackStatus == .playing) ? "Pause" : "Play")
+        }
+        .padding(.horizontal).padding(.vertical, 8).background(.regularMaterial)
+    }
+}
+
+struct EqualizerView: View {
+    @ObservedObject var audio: LocalAudio
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Toggle("Timbre EQ", isOn: $audio.enabled)
+                    Text("For imported audio files").font(.caption).foregroundStyle(.secondary)
+                }
+                Section("Preamp") {
+                    Text(String(format: "%.1f dB", audio.preamp)).monospacedDigit()
+                    Slider(value: $audio.preamp, in: -18...0, step: 0.5)
+                }
+                Section("10 band equalizer") {
+                    ForEach(0..<LocalAudio.frequencies.count, id: \.self) { index in
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text("\(Int(LocalAudio.frequencies[index])) Hz")
+                                Spacer()
+                                Text(String(format: "%+.1f dB", audio.gains[index])).monospacedDigit()
+                            }.font(.caption)
+                            Slider(value: $audio.gains[index], in: -12...12, step: 0.5)
+                                .accessibilityLabel("\(Int(LocalAudio.frequencies[index])) hertz gain")
+                        }
+                    }
+                }.disabled(!audio.enabled)
+                Button("Reset equalizer") { audio.reset() }
+            }
+            .navigationTitle("Timbre")
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+        }
+    }
+}
