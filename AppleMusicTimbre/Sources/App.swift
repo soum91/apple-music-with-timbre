@@ -56,6 +56,9 @@ struct ContentView: View {
                         }
                         Text("Custom EQ applies to imported audio. MusicKit playback uses Apple's audio path.").font(.footnote).foregroundStyle(.secondary)
                     }
+                    Section("About") {
+                        LabeledContent("Installed version", value: "\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown") (build \(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"))")
+                    }
                 }
                 .navigationTitle("Library")
                 .refreshable { await music.refreshAccount() }
