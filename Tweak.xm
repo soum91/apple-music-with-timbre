@@ -21,8 +21,25 @@ static void TBLogSessionState(NSString *event) {
           ports.count ? [ports componentsJoinedByString:@","] : @"none");
 }
 
+%group AppleMusicAudioSessionProbe
+%hook AVAudioSession
+- (BOOL)setActive:(BOOL)active error:(NSError **)outError {
+    BOOL result = %orig;
+    if (result) TBLogSessionState(active ? @"sessionActivated" : @"sessionDeactivated");
+    return result;
+}
+
+- (BOOL)setActive:(BOOL)active withOptions:(AVAudioSessionSetActiveOptions)options error:(NSError **)outError {
+    BOOL result = %orig;
+    if (result) TBLogSessionState(active ? @"sessionActivatedWithOptions" : @"sessionDeactivatedWithOptions");
+    return result;
+}
+%end
+%end
+
 %ctor {
     if (!TBIsAppleMusic()) return;
+    %init(AppleMusicAudioSessionProbe);
 
     dispatch_async(dispatch_get_main_queue(), ^{
         NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
