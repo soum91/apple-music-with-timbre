@@ -88,20 +88,20 @@ jobs:
           python3 AppleMusicGecko/scripts/package_gecko.py \
             --firefox-ipa "$RUNNER_TEMP/firefox-package/firefox.ipa" \
             --app "$RUNNER_TEMP/timbre-radio/Build/Products/Release-iphoneos/AppleMusicGecko.app" \
-            --output "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.0-unsigned.ipa"
+            --output "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.1-unsigned.ipa"
       - name: Upload unsigned IPA
         uses: actions/upload-artifact@v4
         with:
-          name: Apple-Music-Timbre-Gecko-0.2.0-unsigned
-          path: ${{ runner.temp }}/Apple-Music-Timbre-Gecko-0.2.0-unsigned.ipa
+          name: Apple-Music-Timbre-Gecko-0.2.1-unsigned
+          path: ${{ runner.temp }}/Apple-Music-Timbre-Gecko-0.2.1-unsigned.ipa
           if-no-files-found: error
       - name: Publish test prerelease with factual notes
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create apple-music-timbre-gecko-v0.2.0-b2 "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.0-unsigned.ipa" \
-            --prerelease --title 'Apple Music + Timbre 0.2.0 (Gecko preview)' \
-            --notes 'Renamed the standalone Gecko app from Timbre Radio to Apple Music + Timbre. Changed app identity and display name, added native Home/New/Radio/Search/Library navigation around the Apple Music web player and the existing Timbre popup, and generated the app icon. The cached Gecko engine remains unchanged. Confirmed from prior Firefox Gecko device testing: subscription playback is audibly affected by Timbre EQ. This standalone package has not yet been device-tested, and live Radio remains a known limitation. IPA is unsigned and needs all nested code signed consistently.'
+          gh release create apple-music-timbre-gecko-v0.2.1-b3 "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.1-unsigned.ipa" \
+            --prerelease --title 'Apple Music + Timbre 0.2.1 (DRM diagnostics)' \
+            --notes 'Added a one-tap Gecko protected-media support check through the Shaka Player browser test. Corrected the Playback and status screens: iPhone testing shows Timbre affects Apple Music previews, but paid tracks still stop at about 90 seconds in Gecko while Safari plays full songs. This build does not claim to fix full-track playback or Radio; both remain open. The existing cached Gecko engine and Timbre package are unchanged. IPA is unsigned and needs nested code signed consistently.'
       - name: Upload compiler log on failure
         if: failure()
         uses: actions/upload-artifact@v4

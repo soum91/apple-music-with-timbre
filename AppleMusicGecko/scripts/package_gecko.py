@@ -56,7 +56,7 @@ def package(ipa, app, output):
         shutil.copytree(gecko / 'PlugIns/Reynard Helper.appex', helper)
         plist_update(helper / 'Info.plist',
                      CFBundleIdentifier='com.soum91.applemusictimbre.gecko.Helper',
-                     CFBundleShortVersionString='0.2.0', CFBundleVersion='2')
+                     CFBundleShortVersionString='0.2.1', CFBundleVersion='3')
 
         # Verify runtime essentials before signing. This is the same Gecko
         # engine that already runs Timbre in the Firefox native build.

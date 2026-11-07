@@ -64,6 +64,12 @@ final class GeckoMusicState: ObservableObject {
     }
 
     func reload() { session.reload(flags: 0) }
+    func showProtectedMediaTest() {
+        // The Shaka Player project publishes a browser support check for
+        // Encrypted Media Extensions and supported DRM key systems.
+        session.load("https://shaka-project.github.io/shaka-player/demo/")
+        status = "Opened the browser DRM support test in Gecko. Select Browser Support Test."
+    }
     func navigate(to section: MusicSection) {
         session.load(section.url)
     }
@@ -84,7 +90,7 @@ final class GeckoMusicState: ObservableObject {
                 _ = try await AddonRuntime.shared.list()
                 if let addon = AddonRuntime.shared.installedAddons.first(where: { $0.id == "timbre@soum91" }),
                    addon.metaData.enabled {
-                    status = "Timbre loaded. Subscription playback has been confirmed on-device; Radio remains under investigation."
+                    status = "Timbre loaded. EQ affects Gecko preview playback; full protected tracks and Radio are not working yet."
                     return
                 }
             } catch {
@@ -163,7 +169,7 @@ struct AppleMusicTimbreGeckoView: View {
                 Spacer()
                 Button { webFallback.toggle() } label: {
                     Image(systemName: webFallback ? "globe" : "flame")
-                }.accessibilityLabel(webFallback ? "Use Gecko" : "Try WebKit for Radio")
+                }.accessibilityLabel(webFallback ? "Use Gecko" : "Compare playback in WebKit")
                 Button { showAbout = true } label: { Image(systemName: "info.circle") }
             }.padding(.horizontal, 14).frame(height: 46)
 
@@ -224,8 +230,18 @@ struct AppleMusicTimbreGeckoView: View {
             NavigationStack {
                 Form {
                     Section("Playback") {
-                        Text("Apple Music subscription playback with Timbre EQ has been confirmed on the iPhone in our Gecko browser build.")
-                        Text("Live Radio uses a separate media path and still requires testing. The WebKit switch is a playback comparison, not a Timbre DSP route.")
+                        Text("Safari plays full subscription tracks on the test iPhone. Our custom Gecko build currently receives Apple Music previews of approximately 90 seconds, even with an active subscription.")
+                        Text("Timbre EQ affects Gecko's preview audio, but full protected-track processing is not confirmed. Radio also remains unavailable in Gecko.")
+                        Text("The WebKit switch is a playback comparison only. Timbre is not attached to WebKit audio.")
+                    }
+                    Section("Protected-media check") {
+                        Text("The test reports which encrypted-media formats and DRM key systems Gecko exposes. This distinguishes a missing DRM capability from an Apple Music account problem.")
+                        Button("Open DRM browser support test in Gecko") {
+                            gecko.showProtectedMediaTest()
+                            webFallback = false
+                            showAbout = false
+                        }
+                        Text("On the test page, choose Browser Support Test. A missing Widevine/FairPlay result would explain why paid tracks stay in preview, but cannot alone prove Apple's exact selection logic.")
                     }
                     Section("Engine") {
                         Text(gecko.status)
