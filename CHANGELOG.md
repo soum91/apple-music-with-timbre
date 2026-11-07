@@ -1,5 +1,15 @@
 # Changelog
 
+## [apple-music-timbre-gecko-v0.2.7-b9] - 2026-11-07
+
+## Verified changes since apple-music-timbre-gecko-v0.2.6-b8
+
+- feat(audio): isolate Gecko silence with native tone and playback-session diagnostics ([`2f180b5c`](https://github.com/soum91/apple-music-with-timbre/commit/2f180b5cd0055f8cbc09c10fd8eb4487398063ef); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/Sources/NativeMusicPlayback.swift`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, and 2 more)
+- fix(feed): use valid entertainment category in both FlareStore catalogs ([`09af5298`](https://github.com/soum91/apple-music-with-timbre/commit/09af52981f5536dc216e3d1af4d5547d0bddbc0f); `repo.json`, `scripts/make-source.mjs`, `scripts/sync_gecko_flarestore.py`, and 1 more)
+- catalog: publish Apple Music + Timbre Gecko 0.2.6 build 8 ([`e7498008`](https://github.com/soum91/apple-music-with-timbre/commit/e7498008eb3b175558f0028834e593f5b480993a); `repo.json`, `source.json`)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.6-b8...apple-music-timbre-gecko-v0.2.7-b9)
+
 ## [apple-music-timbre-gecko-v0.2.6-b8] - 2026-11-07
 
 ## Verified changes since apple-music-timbre-gecko-v0.2.5-b7
