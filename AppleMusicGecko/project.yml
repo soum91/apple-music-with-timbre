@@ -38,7 +38,7 @@ targets:
         CFBundleShortVersionString: '0.2.3'
         CFBundleVersion: '5'
         ITSAppUsesNonExemptEncryption: false
-        NSAppleMusicUsageDescription: 'Play your Apple Music subscription tracks and radio through Apple's native MusicKit player.'
+        NSAppleMusicUsageDescription: "Play your Apple Music subscription tracks and radio through Apple's native MusicKit player."
         UIBackgroundModes: [audio]
         UILaunchScreen: {}
         UIApplicationSceneManifest:
