@@ -1,5 +1,14 @@
 # Changelog
 
+## Apple Music + Timbre (Gecko) 0.2.4 build 6 (diagnostics, 2026-11-07)
+
+- Added a dedicated in-app Debug report screen, accessible from the top toolbar and About, with **Run diagnostics**, **Copy full debug report**, and the native iOS Share sheet. The report includes the installed package version/build, iOS version, Gecko runtime, native authorization/subscription states, output route, and recent MusicKit outcomes. No Apple ID, authentication token, cookie or HTTP header is exported.
+- Added real non-playback MusicKit tests for account authorization, subscription eligibility, the song-catalog API, and the station-catalog API. Request failures now preserve the public NSError domain, code, and underlying error code instead of an unhelpful `Unknown error` message. Failed station requests can be retried.
+- Added visible Copy/Share controls, a selectable plain-text report, and 10-second EME key-system timeouts to the existing embedded Gecko DRM diagnostic HTML page.
+- Bumped host and embedded Safari WebExtension to **0.2.4 (build 6)**. Cached Gecko binaries and the pinned Timbre DSP engine are unchanged.
+
+Known limitations: Device verification of station discovery, playback and the Gecko test page is still required. A local Gecko file origin can block EME; absent bundled Widevine/FairPlay modules do not by themselves diagnose native MusicKit. The diagnostic does **not** restore protected-track DSP, fix Apple Music's license decisions, or grant signing entitlements. Native MusicKit success and subscription status do not guarantee catalog or radio requests will succeed.
+
 ## Apple Music + Timbre (Gecko) 0.2.3 build 5 (experimental, 2026-11-07)
 
 - Added a native `MusicKit` playback engine option alongside the existing Gecko + Timbre and WebKit comparison modes. Users can authorize Apple Music, search songs and radio stations, request playback, and see specific MusicKit errors without touching the Gecko engine.
