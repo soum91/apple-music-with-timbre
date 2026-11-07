@@ -19,6 +19,16 @@
       "category": "music",
       "versions": [
         {
+          "version": "0.2.6",
+          "buildVersion": "8",
+          "date": "2026-11-07T19:26:52Z",
+          "localizedDescription": "Avoid blocking native station-error alerts; show sanitized MusicKit token-case and installed bundle ID. Added an audible local Web Audio/WAV test inside Gecko. No protected audio access or EQ was added.",
+          "changelog": "Avoid blocking native station-error alerts; show sanitized MusicKit token-case and installed bundle ID. Added an audible local Web Audio/WAV test inside Gecko. No protected audio access or EQ was added.",
+          "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.6-b8/Apple-Music-Timbre-Gecko-0.2.6-unsigned.ipa",
+          "size": 142625409,
+          "minOSVersion": "18.0"
+        },
+        {
           "version": "0.2.5",
           "buildVersion": "7",
           "date": "2026-11-07T18:42:23Z",
@@ -79,12 +89,12 @@
           "minOSVersion": "18.0"
         }
       ],
-      "version": "0.2.5",
-      "buildVersion": "7",
-      "versionDate": "2026-11-07T18:42:23Z",
-      "versionDescription": "Added an observation-only native Core Audio callback probe with in-app inspect action and copyable counts. It does not decrypt, capture or EQ MusicKit samples; protected stream support remains unverified.",
-      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.5-b7/Apple-Music-Timbre-Gecko-0.2.5-unsigned.ipa",
-      "size": 142617629,
+      "version": "0.2.6",
+      "buildVersion": "8",
+      "versionDate": "2026-11-07T19:26:52Z",
+      "versionDescription": "Avoid blocking native station-error alerts; show sanitized MusicKit token-case and installed bundle ID. Added an audible local Web Audio/WAV test inside Gecko. No protected audio access or EQ was added.",
+      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.6-b8/Apple-Music-Timbre-Gecko-0.2.6-unsigned.ipa",
+      "size": 142625409,
       "minOSVersion": "18.0"
     },
     {
