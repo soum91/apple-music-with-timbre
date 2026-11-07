@@ -7,7 +7,7 @@ import UIKit
 private func configurePersistentProfile() {
     guard let support = FileManager.default.urls(for: .applicationSupportDirectory,
         in: .userDomainMask).first else { return }
-    let home = support.appendingPathComponent("TimbreRadioGecko", isDirectory: true)
+    let home = support.appendingPathComponent("AppleMusicTimbreGecko", isDirectory: true)
     let profile = home.appendingPathComponent("Profile", isDirectory: true)
     try? FileManager.default.createDirectory(at: profile, withIntermediateDirectories: true)
     setenv("HOME", home.path, 1)

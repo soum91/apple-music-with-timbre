@@ -1,5 +1,9 @@
 # Apple Music + Timbre
 
+## Dedicated Gecko app (0.2.0 preview)
+
+The new `AppleMusicGecko/` target is **Apple Music + Timbre** with native Home, New, Radio, Search and Library shortcuts around a real Gecko web player and integrated Timbre EQ. The full paid Apple Music stream and audible EQ were confirmed in the Firefox Gecko experiment; playback in the standalone app is not yet device-verified. Radio is still under diagnosis. The old `AppleMusicTimbre/` MusicKit/WebKit prototype is preserved separately.
+
 Standalone SwiftUI/MusicKit app targeting iPhone 17 on iOS 27 without jailbreak, with Timbre indigo branding.
 
 Version 0.2.0 includes Home recommendations, Browse charts, Radio station discovery, album and playlist track pages, search across songs/stations/albums/playlists, and an expanded queue player. Library also includes native audio-file import with a real 10-band EQ and preamp.

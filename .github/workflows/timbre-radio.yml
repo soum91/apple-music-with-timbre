@@ -1,4 +1,4 @@
-name: Build Timbre Radio (cached Gecko)
+name: Build Apple Music + Timbre (cached Gecko)
 on:
   push:
     branches: [main]
@@ -73,9 +73,10 @@ jobs:
         run: |
           set -euo pipefail
           brew install xcodegen
+          swift ../AppleMusicTimbre/scripts/icon.swift "$PWD"
           xcodegen generate
           gecko_flags=$(bash "$GITHUB_WORKSPACE/firefox-source/.github/scripts/geckoview-client-swift-flags.sh" "$GITHUB_WORKSPACE/reynard-source")
-          xcodebuild -project TimbreRadio.xcodeproj -scheme TimbreRadio -configuration Release \
+          xcodebuild -project AppleMusicGecko.xcodeproj -scheme AppleMusicGecko -configuration Release \
             -sdk iphoneos -destination 'generic/platform=iOS' \
             -derivedDataPath "$RUNNER_TEMP/timbre-radio" \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
@@ -86,21 +87,21 @@ jobs:
           set -euo pipefail
           python3 AppleMusicGecko/scripts/package_gecko.py \
             --firefox-ipa "$RUNNER_TEMP/firefox-package/firefox.ipa" \
-            --app "$RUNNER_TEMP/timbre-radio/Build/Products/Release-iphoneos/TimbreRadio.app" \
-            --output "$RUNNER_TEMP/Timbre-Radio-0.1.0-unsigned.ipa"
+            --app "$RUNNER_TEMP/timbre-radio/Build/Products/Release-iphoneos/AppleMusicGecko.app" \
+            --output "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.0-unsigned.ipa"
       - name: Upload unsigned IPA
         uses: actions/upload-artifact@v4
         with:
-          name: Timbre-Radio-0.1.0-unsigned
-          path: ${{ runner.temp }}/Timbre-Radio-0.1.0-unsigned.ipa
+          name: Apple-Music-Timbre-Gecko-0.2.0-unsigned
+          path: ${{ runner.temp }}/Apple-Music-Timbre-Gecko-0.2.0-unsigned.ipa
           if-no-files-found: error
       - name: Publish test prerelease with factual notes
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create timbre-radio-v0.1.0-b1 "$RUNNER_TEMP/Timbre-Radio-0.1.0-unsigned.ipa" \
-            --prerelease --title 'Timbre Radio 0.1.0 (experimental)' \
-            --notes 'First separate native-UI Apple Music Radio shell. Reuses Firefox Gecko 159.0 build 65 runtime without recompiling the engine; adds first-class Radio navigation, a bundled Timbre add-on popup, persistent Gecko profile, native WebKit comparison, and installed version display. Known limitation: free live Radio playback and Timbre DSP on protected Radio have not been verified on iPhone. The IPA is unsigned and requires signing with the same team for the app and its helper.'
+          gh release create apple-music-timbre-gecko-v0.2.0-b2 "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.0-unsigned.ipa" \
+            --prerelease --title 'Apple Music + Timbre 0.2.0 (Gecko preview)' \
+            --notes 'Renamed the standalone Gecko app from Timbre Radio to Apple Music + Timbre. Changed app identity and display name, added native Home/New/Radio/Search/Library navigation around the Apple Music web player and the existing Timbre popup, and generated the app icon. The cached Gecko engine remains unchanged. Confirmed from prior Firefox Gecko device testing: subscription playback is audibly affected by Timbre EQ. This standalone package has not yet been device-tested, and live Radio remains a known limitation. IPA is unsigned and needs all nested code signed consistently.'
       - name: Upload compiler log on failure
         if: failure()
         uses: actions/upload-artifact@v4

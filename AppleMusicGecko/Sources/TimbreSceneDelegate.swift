@@ -8,7 +8,7 @@ final class TimbreSceneDelegate: UIResponder, UIWindowSceneDelegate {
                options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = UIHostingController(rootView: TimbreRadioAppView())
+        window.rootViewController = UIHostingController(rootView: AppleMusicTimbreGeckoView())
         window.makeKeyAndVisible()
         self.window = window
     }

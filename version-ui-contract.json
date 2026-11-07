@@ -9,7 +9,7 @@
       }]
     },
     {
-      "name": "Timbre Radio (Gecko)",
+      "name": "Apple Music + Timbre (Gecko)",
       "evidence": [{
         "path": "AppleMusicGecko/Sources/TimbreRadioAppView.swift",
         "contains": ["Installed version", "CFBundleShortVersionString", "CFBundleVersion"]

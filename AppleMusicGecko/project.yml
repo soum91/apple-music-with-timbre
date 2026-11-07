@@ -1,4 +1,4 @@
-name: TimbreRadio
+name: AppleMusicGecko
 options:
   bundleIdPrefix: com.soum91
   deploymentTarget:
@@ -6,31 +6,32 @@ options:
 settings:
   base:
     SWIFT_VERSION: '5.0'
-    MARKETING_VERSION: '0.1.0'
-    CURRENT_PROJECT_VERSION: '1'
+    MARKETING_VERSION: '0.2.0'
+    CURRENT_PROJECT_VERSION: '2'
     FRAMEWORK_SEARCH_PATHS: '$(inherited) $(PROJECT_DIR)/Dependencies'
     OTHER_LDFLAGS: '$(inherited) -framework GeckoView'
 targets:
-  TimbreRadio:
+  AppleMusicGecko:
     type: application
     platform: iOS
-    sources: [Sources]
+    sources: [Sources, Assets.xcassets]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.soum91.timbreradio
-        MARKETING_VERSION: '0.1.0'
-        CURRENT_PROJECT_VERSION: '1'
+        PRODUCT_BUNDLE_IDENTIFIER: com.soum91.applemusictimbre.gecko
+        MARKETING_VERSION: '0.2.0'
+        CURRENT_PROJECT_VERSION: '2'
         TARGETED_DEVICE_FAMILY: '1,2'
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - framework: Dependencies/GeckoView.framework
         embed: false
     info:
       path: Info.plist
       properties:
-        CFBundleDisplayName: Timbre Radio
-        CFBundleShortVersionString: '0.1.0'
-        CFBundleVersion: '1'
+        CFBundleDisplayName: Apple Music + Timbre
+        CFBundleShortVersionString: '0.2.0'
+        CFBundleVersion: '2'
         ITSAppUsesNonExemptEncryption: false
         UIBackgroundModes: [audio]
         UILaunchScreen: {}
@@ -41,7 +42,7 @@ targets:
               - UISceneConfigurationName: Default Configuration
                 UISceneDelegateClassName: '$(PRODUCT_MODULE_NAME).TimbreSceneDelegate'
 schemes:
-  TimbreRadio:
+  AppleMusicGecko:
     build:
       targets:
-        TimbreRadio: all
+        AppleMusicGecko: all

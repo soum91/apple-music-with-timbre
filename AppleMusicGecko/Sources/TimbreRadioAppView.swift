@@ -4,10 +4,31 @@ import WebKit
 @preconcurrency import GeckoView
 
 private let indigo = Color(red: 99 / 255, green: 102 / 255, blue: 241 / 255)
-private let radioURL = "https://music.apple.com/ca/radio"
+enum MusicSection: String, CaseIterable, Identifiable {
+    case home = "Home", new = "New", radio = "Radio", search = "Search", library = "Library"
+    var id: String { rawValue }
+    var symbol: String {
+        switch self {
+        case .home: "house.fill"
+        case .new: "sparkles"
+        case .radio: "dot.radiowaves.left.and.right"
+        case .search: "magnifyingglass"
+        case .library: "music.note.list"
+        }
+    }
+    var url: String {
+        switch self {
+        case .home: "https://music.apple.com/ca/home"
+        case .new: "https://music.apple.com/ca/new"
+        case .radio: "https://music.apple.com/ca/radio"
+        case .search: "https://music.apple.com/ca/search"
+        case .library: "https://music.apple.com/ca/library"
+        }
+    }
+}
 
 @MainActor
-final class GeckoRadioState: ObservableObject {
+final class GeckoMusicState: ObservableObject {
     @Published var status = "Ready"
     @Published var errorMessage: String?
     @Published var eqPopupURL: String?
@@ -37,13 +58,15 @@ final class GeckoRadioState: ObservableObject {
         session.setActive(true)
         session.setAddonTabActive(true)
         session.setFocused(true)
-        session.load(radioURL)
-        status = "Apple Music Radio loaded in Gecko. Sign in to your Apple Account to play free live stations."
+        session.load(MusicSection.home.url)
+        status = "Apple Music loaded in Gecko. Timbre is available on supported playback."
         Task { await registerTimbre() }
     }
 
     func reload() { session.reload(flags: 0) }
-    func home() { session.load(radioURL) }
+    func navigate(to section: MusicSection) {
+        session.load(section.url)
+    }
     func back() { session.goBack() }
     func forward() { session.goForward() }
     func setVisible(_ visible: Bool) {
@@ -61,7 +84,7 @@ final class GeckoRadioState: ObservableObject {
                 _ = try await AddonRuntime.shared.list()
                 if let addon = AddonRuntime.shared.installedAddons.first(where: { $0.id == "timbre@soum91" }),
                    addon.metaData.enabled {
-                    status = "Timbre loaded. Radio playback and DSP still require on-device testing."
+                    status = "Timbre loaded. Subscription playback has been confirmed on-device; Radio remains under investigation."
                     return
                 }
             } catch {
@@ -93,7 +116,7 @@ final class GeckoRadioState: ObservableObject {
 }
 
 struct GeckoViewSurface: UIViewRepresentable {
-    @ObservedObject var state: GeckoRadioState
+    @ObservedObject var state: GeckoMusicState
     func makeUIView(context: Context) -> GeckoView {
         let view = GeckoView(frame: .zero)
         view.backgroundColor = .black
@@ -125,9 +148,10 @@ struct TimbrePopupSurface: UIViewRepresentable {
     func updateUIView(_ view: GeckoView, context: Context) {}
 }
 
-struct TimbreRadioAppView: View {
-    @StateObject private var gecko = GeckoRadioState()
+struct AppleMusicTimbreGeckoView: View {
+    @StateObject private var gecko = GeckoMusicState()
     @State private var webFallback = false
+    @State private var section: MusicSection = .home
     @State private var showAbout = false
     @State private var showEQ = false
 
@@ -135,7 +159,7 @@ struct TimbreRadioAppView: View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 Image(systemName: "waveform.path").foregroundStyle(indigo)
-                Text("Timbre Radio").font(.headline)
+                Text("Apple Music + Timbre").font(.headline)
                 Spacer()
                 Button { webFallback.toggle() } label: {
                     Image(systemName: webFallback ? "globe" : "flame")
@@ -148,7 +172,7 @@ struct TimbreRadioAppView: View {
                 // samples are accessible to Timbre is an independent question.
                 Text("WebKit comparison only. Timbre EQ is not attached to this player.")
                     .font(.caption).foregroundStyle(.secondary).padding(.horizontal, 12)
-                WebKitRadioFallback()
+                WebKitRadioFallback(section: section)
             } else {
                 GeckoViewSurface(state: gecko)
             }
@@ -156,7 +180,6 @@ struct TimbreRadioAppView: View {
             HStack(spacing: 12) {
                 Button { gecko.back() } label: { Image(systemName: "chevron.left") }.disabled(webFallback)
                 Button { gecko.forward() } label: { Image(systemName: "chevron.right") }.disabled(webFallback)
-                Button { gecko.home() } label: { Image(systemName: "dot.radiowaves.left.and.right") }.disabled(webFallback)
                 Button { gecko.reload() } label: { Image(systemName: "arrow.clockwise") }.disabled(webFallback)
                 Spacer()
                 Button {
@@ -165,9 +188,28 @@ struct TimbreRadioAppView: View {
                     .buttonStyle(.borderedProminent)
                     .disabled(webFallback)
             }.padding(.horizontal).frame(height: 52).background(.regularMaterial)
+            HStack(spacing: 0) {
+                ForEach(MusicSection.allCases) { destination in
+                    Button {
+                        section = destination
+                        if !webFallback { gecko.navigate(to: destination) }
+                    } label: {
+                        VStack(spacing: 3) {
+                            Image(systemName: destination.symbol).font(.system(size: 19))
+                            Text(destination.rawValue).font(.system(size: 10))
+                        }
+                        .foregroundStyle(section == destination ? indigo : .secondary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                    }.buttonStyle(.plain)
+                }
+            }.background(.regularMaterial)
         }
         .onAppear { gecko.start() }
-        .onChange(of: webFallback) { _, fallback in gecko.setVisible(!fallback) }
+        .onChange(of: webFallback) { _, fallback in
+            gecko.setVisible(!fallback)
+            if !fallback { gecko.navigate(to: section) }
+        }
         .tint(indigo)
         .sheet(isPresented: $showEQ) {
             NavigationStack {
@@ -182,8 +224,8 @@ struct TimbreRadioAppView: View {
             NavigationStack {
                 Form {
                     Section("Playback") {
-                        Text("Free Apple Music live radio requires an Apple Account sign-in, not a paid subscription.")
-                        Text("Gecko + Timbre work on some web audio. Protected Radio playback and audible EQ are not verified.")
+                        Text("Apple Music subscription playback with Timbre EQ has been confirmed on the iPhone in our Gecko browser build.")
+                        Text("Live Radio uses a separate media path and still requires testing. The WebKit switch is a playback comparison, not a Timbre DSP route.")
                     }
                     Section("Engine") {
                         Text(gecko.status)
@@ -192,11 +234,11 @@ struct TimbreRadioAppView: View {
                     Section("About") {
                         Text("Installed version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"))")
                     }
-                }.navigationTitle("Timbre Radio")
+                }.navigationTitle("Apple Music + Timbre")
                     .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showAbout = false } } }
             }
         }
-        .alert("Timbre Radio", isPresented: Binding(
+        .alert("Apple Music + Timbre", isPresented: Binding(
             get: { gecko.errorMessage != nil },
             set: { if !$0 { gecko.errorMessage = nil } })) {
                 Button("OK") { gecko.errorMessage = nil }
@@ -205,13 +247,23 @@ struct TimbreRadioAppView: View {
 }
 
 struct WebKitRadioFallback: UIViewRepresentable {
+    let section: MusicSection
+    final class Coordinator {
+        var section: MusicSection
+        init(section: MusicSection) { self.section = section }
+    }
+    func makeCoordinator() -> Coordinator { Coordinator(section: section) }
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.allowsInlineMediaPlayback = true
         let view = WKWebView(frame: .zero, configuration: config)
-        view.load(URLRequest(url: URL(string: radioURL)!))
+        view.load(URLRequest(url: URL(string: section.url)!))
         return view
     }
-    func updateUIView(_ view: WKWebView, context: Context) {}
+    func updateUIView(_ view: WKWebView, context: Context) {
+        guard context.coordinator.section != section else { return }
+        context.coordinator.section = section
+        view.load(URLRequest(url: URL(string: section.url)!))
+    }
 }

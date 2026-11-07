@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Repackage the known-working Firefox Gecko engine into Timbre Radio.
+"""Repackage the known-working Firefox Gecko engine into Apple Music + Timbre.
 
 The Firefox UI is *not* copied. Only Gecko runtime frameworks, the content
 process helper, and its bundled Timbre extension are reused. No Gecko compile.
@@ -47,7 +47,7 @@ def package(ipa, app, output):
                     shutil.copyfileobj(source, destination)
 
         payload = temp / 'TimbrePayload' / 'Payload'
-        dest = payload / 'TimbreRadio.app'
+        dest = payload / 'AppleMusicGecko.app'
         shutil.copytree(app, dest)
         gecko = temp / 'Payload/Firefox.app'
         shutil.copytree(gecko / 'Frameworks', dest / 'Frameworks', dirs_exist_ok=True)
@@ -55,8 +55,8 @@ def package(ipa, app, output):
         helper.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(gecko / 'PlugIns/Reynard Helper.appex', helper)
         plist_update(helper / 'Info.plist',
-                     CFBundleIdentifier='com.soum91.timbreradio.Helper',
-                     CFBundleShortVersionString='0.1.0', CFBundleVersion='1')
+                     CFBundleIdentifier='com.soum91.applemusictimbre.gecko.Helper',
+                     CFBundleShortVersionString='0.2.0', CFBundleVersion='2')
 
         # Verify runtime essentials before signing. This is the same Gecko
         # engine that already runs Timbre in the Firefox native build.
@@ -82,7 +82,7 @@ def package(ipa, app, output):
             run('codesign', '--force', '--sign', '-', '--timestamp=none', framework)
         run('codesign', '--force', '--sign', '-', '--timestamp=none', helper)
         run('codesign', '--force', '--sign', '-', '--timestamp=none', dest)
-        for path in [dest / 'TimbreRadio', required[0], required[1]]:
+        for path in [dest / 'AppleMusicGecko', required[0], required[1]]:
             run('codesign', '--verify', '--strict', path)
 
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -91,7 +91,7 @@ def package(ipa, app, output):
     with zipfile.ZipFile(output) as z:
         if z.testzip() is not None:
             raise ValueError('IPA archive is damaged')
-        if 'Payload/TimbreRadio.app/Info.plist' not in z.namelist():
+        if 'Payload/AppleMusicGecko.app/Info.plist' not in z.namelist():
             raise ValueError('Missing app Info.plist')
 
 
