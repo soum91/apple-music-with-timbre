@@ -19,6 +19,16 @@
       "category": "music",
       "versions": [
         {
+          "version": "0.2.5",
+          "buildVersion": "7",
+          "date": "2026-11-07T18:42:23Z",
+          "localizedDescription": "Added an observation-only native Core Audio callback probe with in-app inspect action and copyable counts. It does not decrypt, capture or EQ MusicKit samples; protected stream support remains unverified.",
+          "changelog": "Added an observation-only native Core Audio callback probe with in-app inspect action and copyable counts. It does not decrypt, capture or EQ MusicKit samples; protected stream support remains unverified.",
+          "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.5-b7/Apple-Music-Timbre-Gecko-0.2.5-unsigned.ipa",
+          "size": 142617629,
+          "minOSVersion": "18.0"
+        },
+        {
           "version": "0.2.4",
           "buildVersion": "6",
           "date": "2026-11-07T18:15:36Z",
@@ -69,12 +79,12 @@
           "minOSVersion": "18.0"
         }
       ],
-      "version": "0.2.4",
-      "buildVersion": "6",
-      "versionDate": "2026-11-07T18:15:36Z",
-      "versionDescription": "Added in-app Copy/Share debug reporting with real subscription, song and station catalog requests and NSError domain/code details, plus exportable Gecko EME test results and timeout handling. MusicKit signing capabilities and protected music EQ remain unverified.",
-      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.4-b6/Apple-Music-Timbre-Gecko-0.2.4-unsigned.ipa",
-      "size": 142611242,
+      "version": "0.2.5",
+      "buildVersion": "7",
+      "versionDate": "2026-11-07T18:42:23Z",
+      "versionDescription": "Added an observation-only native Core Audio callback probe with in-app inspect action and copyable counts. It does not decrypt, capture or EQ MusicKit samples; protected stream support remains unverified.",
+      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.5-b7/Apple-Music-Timbre-Gecko-0.2.5-unsigned.ipa",
+      "size": 142617629,
       "minOSVersion": "18.0"
     },
     {
