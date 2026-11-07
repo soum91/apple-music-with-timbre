@@ -105,20 +105,44 @@ jobs:
           python3 AppleMusicGecko/scripts/package_gecko.py \
             --firefox-ipa "$RUNNER_TEMP/firefox-package/firefox.ipa" \
             --app "$RUNNER_TEMP/timbre-radio/Build/Products/Release-iphoneos/AppleMusicGecko.app" \
-            --output "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.2-unsigned.ipa"
+            --output "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.3-unsigned.ipa"
       - name: Upload unsigned IPA
         uses: actions/upload-artifact@v4
         with:
-          name: Apple-Music-Timbre-Gecko-0.2.2-unsigned
-          path: ${{ runner.temp }}/Apple-Music-Timbre-Gecko-0.2.2-unsigned.ipa
+          name: Apple-Music-Timbre-Gecko-0.2.3-unsigned
+          path: ${{ runner.temp }}/Apple-Music-Timbre-Gecko-0.2.3-unsigned.ipa
           if-no-files-found: error
       - name: Publish test prerelease with factual notes
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create apple-music-timbre-gecko-v0.2.2-b4 "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.2-unsigned.ipa" \
-            --prerelease --title 'Apple Music + Timbre 0.2.2 (Safari extension test)' \
-            --notes 'Embedded a real iOS Safari WebExtension in Apple Music + Timbre, reusing the Timbre source EQ engine, bridge, popup, presets and effects at pinned soum91/timbre commit 9dfccd2. Added Safari setup guidance in About, updated both app and extension packaging, and verified that the extension manifest, scripts and signed app extension appear in the IPA. The cached Gecko runtime remains unchanged. This is an on-device test: Safari FairPlay-protected tracks may not expose audio to Web Audio, and Radio and protected songs are not claimed to support EQ. The IPA is unsigned; the sideloader must sign both the containing app and Safari extension.'
+          notes='Added a separate native MusicKit playback mode for authorized Apple Music songs and radio stations, with explicit subscription/authorization and playback errors. Added an embedded Gecko EME/Widevine/FairPlay browser probe and an inventory of DRM modules actually shipped in the IPA. The browser probe runs on a local file origin and may be more restricted than HTTPS. Added music access purpose text. The cached Gecko engine is unchanged; protected music EQ is still unsupported and native playback depends on the signer enabling Apple Music capabilities. Safari WebExtension remains bundled. The IPA must be signed, including its extensions.'
+          gh release create apple-music-timbre-gecko-v0.2.3-b5 "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.3-unsigned.ipa" \
+            --prerelease --title 'Apple Music + Timbre 0.2.3 (native playback / DRM diagnostics)' \
+            --notes "$notes"
+      - name: Refresh both FlareStore source aliases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          asset='Apple-Music-Timbre-Gecko-0.2.3-unsigned.ipa'
+          tag='apple-music-timbre-gecko-v0.2.3-b5'
+          gh release view "$tag" --json assets -q '.assets[].name' | grep -Fx "$asset"
+          size=$(stat -f '%z' "$RUNNER_TEMP/$asset")
+          notes='Added native MusicKit mode with subscription and radio playback tests, native playback error reporting, packaged DRM module inventory, and in-app Gecko EME/Widevine/FairPlay probes. Paid-track EQ remains unsupported; native MusicKit access requires appropriate signing capabilities.'
+          git fetch origin main
+          git checkout -B main origin/main
+          python3 scripts/sync_gecko_flarestore.py \
+            --version 0.2.3 --build 5 --size "$size" \
+            --download-url "https://github.com/soum91/apple-music-with-timbre/releases/download/$tag/$asset" \
+            --notes "$notes"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add repo.json source.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'catalog: publish Apple Music + Timbre Gecko 0.2.3 build 5'
+            git push origin main
+          fi
       - name: Upload compiler log on failure
         if: failure()
         uses: actions/upload-artifact@v4

@@ -1,9 +1,32 @@
 import SwiftUI
 import UIKit
 import WebKit
+import MusicKit
 @preconcurrency import GeckoView
 
 private let indigo = Color(red: 99 / 255, green: 102 / 255, blue: 241 / 255)
+private enum PlayerMode: String, CaseIterable {
+    case gecko = "Gecko + Timbre"
+    case native = "Native MusicKit"
+    case webkit = "WebKit comparison"
+    var symbol: String {
+        switch self {
+        case .gecko: "flame"
+        case .native: "music.note"
+        case .webkit: "globe"
+        }
+    }
+}
+
+private struct DRMBundleReport: Decodable {
+    let containsWidevineCDM: Bool
+    let containsFairPlayCDM: Bool
+    static var installed: DRMBundleReport? {
+        guard let url = Bundle.main.url(forResource: "drm-capabilities", withExtension: "json"),
+              let data = try? Data(contentsOf: url) else { return nil }
+        return try? JSONDecoder().decode(Self.self, from: data)
+    }
+}
 enum MusicSection: String, CaseIterable, Identifiable {
     case home = "Home", new = "New", radio = "Radio", search = "Search", library = "Library"
     var id: String { rawValue }
@@ -65,10 +88,12 @@ final class GeckoMusicState: ObservableObject {
 
     func reload() { session.reload(flags: 0) }
     func showProtectedMediaTest() {
-        // The Shaka Player project publishes a browser support check for
-        // Encrypted Media Extensions and supported DRM key systems.
-        session.load("https://shaka-project.github.io/shaka-player/demo/")
-        status = "Opened the browser DRM support test in Gecko. Select Browser Support Test."
+        guard let url = Bundle.main.url(forResource: "drm-diagnostic", withExtension: "html") else {
+            errorMessage = "The embedded Gecko DRM diagnostic is missing from this build."
+            return
+        }
+        session.load(url.absoluteString)
+        status = "Running the embedded Gecko EME, Widevine and FairPlay checks. Local file origins can restrict EME."
     }
     func navigate(to section: MusicSection) {
         session.load(section.url)
@@ -156,7 +181,8 @@ struct TimbrePopupSurface: UIViewRepresentable {
 
 struct AppleMusicTimbreGeckoView: View {
     @StateObject private var gecko = GeckoMusicState()
-    @State private var webFallback = false
+    @StateObject private var native = NativeMusicPlaybackState()
+    @State private var playerMode: PlayerMode = .gecko
     @State private var section: MusicSection = .home
     @State private var showAbout = false
     @State private var showEQ = false
@@ -167,38 +193,50 @@ struct AppleMusicTimbreGeckoView: View {
                 Image(systemName: "waveform.path").foregroundStyle(indigo)
                 Text("Apple Music + Timbre").font(.headline)
                 Spacer()
-                Button { webFallback.toggle() } label: {
-                    Image(systemName: webFallback ? "globe" : "flame")
-                }.accessibilityLabel(webFallback ? "Use Gecko" : "Compare playback in WebKit")
+                Menu {
+                    ForEach(PlayerMode.allCases, id: \.self) { mode in
+                        Button {
+                            playerMode = mode
+                        } label: {
+                            Label(mode.rawValue, systemImage: mode.symbol)
+                        }
+                    }
+                } label: {
+                    Label(playerMode.rawValue, systemImage: playerMode.symbol)
+                        .labelStyle(.iconOnly)
+                }.accessibilityLabel("Playback engine: \(playerMode.rawValue)")
                 Button { showAbout = true } label: { Image(systemName: "info.circle") }
             }.padding(.horizontal, 14).frame(height: 46)
 
-            if webFallback {
+            if playerMode == .webkit {
                 // WebKit has native FairPlay/HLS support; whether its protected
                 // samples are accessible to Timbre is an independent question.
                 Text("WebKit comparison only. Timbre EQ is not attached to this player.")
                     .font(.caption).foregroundStyle(.secondary).padding(.horizontal, 12)
                 WebKitRadioFallback(section: section)
+            } else if playerMode == .native {
+                NativeMusicPlaybackView(music: native, section: section)
             } else {
                 GeckoViewSurface(state: gecko)
             }
 
-            HStack(spacing: 12) {
-                Button { gecko.back() } label: { Image(systemName: "chevron.left") }.disabled(webFallback)
-                Button { gecko.forward() } label: { Image(systemName: "chevron.right") }.disabled(webFallback)
-                Button { gecko.reload() } label: { Image(systemName: "arrow.clockwise") }.disabled(webFallback)
-                Spacer()
-                Button {
-                    Task { await gecko.openEQ(); showEQ = gecko.eqPopupURL != nil }
-                } label: { Label("Timbre", systemImage: "slider.horizontal.3") }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(webFallback)
-            }.padding(.horizontal).frame(height: 52).background(.regularMaterial)
+            if playerMode == .gecko {
+                HStack(spacing: 12) {
+                    Button { gecko.back() } label: { Image(systemName: "chevron.left") }
+                    Button { gecko.forward() } label: { Image(systemName: "chevron.right") }
+                    Button { gecko.reload() } label: { Image(systemName: "arrow.clockwise") }
+                    Spacer()
+                    Button {
+                        Task { await gecko.openEQ(); showEQ = gecko.eqPopupURL != nil }
+                    } label: { Label("Timbre", systemImage: "slider.horizontal.3") }
+                        .buttonStyle(.borderedProminent)
+                }.padding(.horizontal).frame(height: 52).background(.regularMaterial)
+            }
             HStack(spacing: 0) {
                 ForEach(MusicSection.allCases) { destination in
                     Button {
                         section = destination
-                        if !webFallback { gecko.navigate(to: destination) }
+                        if playerMode == .gecko { gecko.navigate(to: destination) }
                     } label: {
                         VStack(spacing: 3) {
                             Image(systemName: destination.symbol).font(.system(size: 19))
@@ -212,9 +250,9 @@ struct AppleMusicTimbreGeckoView: View {
             }.background(.regularMaterial)
         }
         .onAppear { gecko.start() }
-        .onChange(of: webFallback) { _, fallback in
-            gecko.setVisible(!fallback)
-            if !fallback { gecko.navigate(to: section) }
+        .onChange(of: playerMode) { _, mode in
+            gecko.setVisible(mode == .gecko)
+            if mode == .native { Task { await native.refresh() } }
         }
         .tint(indigo)
         .sheet(isPresented: $showEQ) {
@@ -232,16 +270,33 @@ struct AppleMusicTimbreGeckoView: View {
                     Section("Playback") {
                         Text("Safari plays full subscription tracks on the test iPhone. Our custom Gecko build currently receives Apple Music previews of approximately 90 seconds, even with an active subscription.")
                         Text("Timbre EQ affects Gecko's preview audio, but full protected-track processing is not confirmed. Radio also remains unavailable in Gecko.")
-                        Text("The WebKit switch is a playback comparison only. Timbre is not attached to WebKit audio.")
+                        Text("Choose Native MusicKit using the engine menu to test authenticated subscription tracks and radio. Neither MusicKit nor WebKit exposes protected PCM to Timbre. Native playback is not a DRM bypass.")
                     }
                     Section("Protected-media check") {
-                        Text("The test reports which encrypted-media formats and DRM key systems Gecko exposes. This distinguishes a missing DRM capability from an Apple Music account problem.")
-                        Button("Open DRM browser support test in Gecko") {
+                        Text("This build's embedded media-module inventory and the Gecko web API test are separate checks. They do not prove that Apple Music will authorize a full track.")
+                        if let report = DRMBundleReport.installed {
+                            LabeledContent("Bundled Widevine module", value: report.containsWidevineCDM ? "Present" : "Absent")
+                            LabeledContent("Bundled FairPlay module", value: report.containsFairPlayCDM ? "Present" : "Absent")
+                        } else {
+                            Text("Bundled DRM inventory unavailable.")
+                        }
+                        Button("Run in-app Gecko DRM test") {
                             gecko.showProtectedMediaTest()
-                            webFallback = false
+                            playerMode = .gecko
                             showAbout = false
                         }
-                        Text("On the test page, choose Browser Support Test. A missing Widevine/FairPlay result would explain why paid tracks stay in preview, but cannot alone prove Apple's exact selection logic.")
+                        Text("The embedded page displays EME, Widevine, FairPlay and media capability results. Its local-file origin can restrict EME, so an 'unavailable' result is not definitive for HTTPS sites.")
+                        Button("Open independent Shaka browser test") {
+                            gecko.session.load("https://shaka-project.github.io/shaka-player/demo/")
+                            playerMode = .gecko
+                            showAbout = false
+                        }
+                    }
+                    Section("Native pipeline") {
+                        LabeledContent("Music access", value: native.authorization == .authorized ? "Authorized" : "Not authorized")
+                        LabeledContent("Catalog subscription", value: native.subscription)
+                        Text("Apple's ApplicationMusicPlayer runs independently of the browser. Successful playback proves native access, not custom DSP access. No audio taps into protected MusicKit playback are used.")
+                        Button("Open native playback") { playerMode = .native; showAbout = false }
                     }
                     Section("Safari Extension") {
                         Text("This app also installs Timbre EQ for Safari. In Safari, open the Extensions menu, enable Timbre EQ, and allow access to music.apple.com. The Safari extension has its own presets and settings.")

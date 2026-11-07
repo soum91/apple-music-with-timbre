@@ -11,15 +11,19 @@ though the same subscription plays full tracks in Safari.
   shortcuts are not a claim of a fully native music catalog UI yet.
 - Built-in Timbre WebExtension, using the same verified Gecko engine and the
   packaged extension from the Firefox Gecko 159.0.65 IPA.
-- WebKit comparison switch to distinguish Gecko-specific media failures. Timbre
-  does not apply in WebKit mode.
+- Engine selector: Gecko + Timbre, Apple Music's native `ApplicationMusicPlayer`,
+  or a WebKit comparison. The native mode can ask for Apple Music permission,
+  query a subscription, search for songs and stations and report playback
+  errors. Neither WebKit nor native MusicKit gives Timbre decoded protected PCM.
 - An actual Safari WebExtension included in the same app IPA. Safari users can
   enable Timbre EQ from Safari > Extensions after signing/installing the app.
   It reuses the pinned Timbre EQ add-on scripts, popup, and DSP engine but has
   its own Safari extension storage and site permission grants.
 - Persistent Gecko profile for Apple Account sign-in cookies.
-- A one-tap Shaka Player browser support check in About, used to inspect
-  Gecko's protected-media capabilities on the target iPhone.
+- Embedded Gecko HTML diagnostics for EME, DRM key-system negotiation and codec
+  support, plus a native inventory of shipped CDM binaries. The embedded test
+  uses a local-file origin, which can itself restrict EME and is not definitive
+  for Apple Music's HTTPS origin. The Shaka test remains an optional comparison.
 - Installed version and build shown in About from Info.plist.
 
 Live Apple Music Radio requires a signed-in Apple Account but no subscription.
@@ -30,7 +34,7 @@ No DRM bypass is attempted.
 Do not remove the original `AppleMusicTimbre/` project: it is a separate native
 MusicKit/WebKit prototype. The dedicated Gecko app uses a separate test bundle
 ID while its playback and native navigation are verified. The IPA is packaged
-as `Apple-Music-Timbre-Gecko-0.2.2-unsigned.ipa`.
+as `Apple-Music-Timbre-Gecko-0.2.3-unsigned.ipa`.
 
 ## Safari EQ test
 

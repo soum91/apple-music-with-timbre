@@ -5,6 +5,7 @@ The Firefox UI is *not* copied. Only Gecko runtime frameworks, the content
 process helper, and its bundled Timbre extension are reused. No Gecko compile.
 """
 import argparse
+import json
 import plistlib
 import shutil
 import subprocess
@@ -49,6 +50,9 @@ def package(ipa, app, output):
         payload = temp / 'TimbrePayload' / 'Payload'
         dest = payload / 'AppleMusicGecko.app'
         shutil.copytree(app, dest)
+        app_info = plistlib.loads((dest / 'Info.plist').read_bytes())
+        app_version = str(app_info['CFBundleShortVersionString'])
+        app_build = str(app_info['CFBundleVersion'])
         gecko = temp / 'Payload/Firefox.app'
         shutil.copytree(gecko / 'Frameworks', dest / 'Frameworks', dirs_exist_ok=True)
         helper = dest / 'PlugIns/Reynard Helper.appex'
@@ -56,7 +60,22 @@ def package(ipa, app, output):
         shutil.copytree(gecko / 'PlugIns/Reynard Helper.appex', helper)
         plist_update(helper / 'Info.plist',
                      CFBundleIdentifier='com.soum91.applemusictimbre.gecko.Helper',
-                     CFBundleShortVersionString='0.2.2', CFBundleVersion='4')
+                     CFBundleShortVersionString=app_version, CFBundleVersion=app_build)
+        if not (dest / 'drm-diagnostic.html').is_file():
+            raise FileNotFoundError('Native build did not embed drm-diagnostic.html')
+
+        # Inspect the binaries actually shipped. Widevine configuration JSON
+        # files alone are not a Content Decryption Module.
+        module_names = {'libwidevinecdm.so', 'widevinecdm.dll', 'libwidevinecdm.dylib',
+                        'widevinecdm.dylib', 'libfairplaycdm.dylib'}
+        modules = {p.name.lower() for p in dest.rglob('*') if p.is_file()
+                   and p.name.lower() in module_names}
+        (dest / 'drm-capabilities.json').write_text(json.dumps({
+            'containsWidevineCDM': bool(modules & (module_names - {'libfairplaycdm.dylib'})),
+            'containsFairPlayCDM': 'libfairplaycdm.dylib' in modules,
+            'detectedModules': sorted(modules),
+            'scope': 'Packaged module inventory, not browser EME support'
+        }, indent=2) + '\n')
         safari = dest / 'PlugIns/TimbreSafariExtension.appex'
         safari_manifest = next((path for path in (
             safari / 'manifest.json', safari / 'Resources/manifest.json') if path.is_file()), None)
@@ -76,7 +95,6 @@ def package(ipa, app, output):
             if not path.is_file():
                 raise FileNotFoundError(path)
 
-        import json
         addon = json.loads(required[2].read_text())
         if addon.get('browser_specific_settings', {}).get('gecko', {}).get('id') != 'timbre@soum91':
             raise ValueError('Wrong Timbre add-on package')

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gecko DRM diagnostics</title>
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, system-ui, sans-serif; background: #15151d; color: #f5f5fb; }
+    body { max-width: 660px; margin: auto; padding: 18px 16px 60px; }
+    h1 { font-size: 23px; } p { line-height: 1.4; color: #b9b9c8; }
+    .result { background: #242431; border-radius: 14px; padding: 14px; margin: 10px 0; overflow-wrap: anywhere; }
+    .result strong { display: block; font-size: 15px; margin-bottom: 4px; }
+    .pass { color: #58d68d; } .fail { color: #ff8f94; } .warn { color: #f9c66f; }
+    button { border: 0; border-radius: 11px; color: white; background: #6366f1; padding: 12px 18px; font-weight: 700; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; color: #b9b9c8; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <h1>Gecko DRM diagnostics</h1>
+  <p>This page runs checks <b>inside the packaged Gecko engine</b>. The results are not a fix, and a local-file origin may produce a different EME result than music.apple.com.</p>
+  <button id="run">Run again</button>
+  <div id="results" aria-live="polite">Running media capability checks…</div>
+  <details><summary>Copyable technical report</summary><pre id="report"></pre></details>
+  <p>Even if EME works, that does not prove Apple's license service will send full tracks. No browser extension is entitled to intercept FairPlay-protected audio samples.</p>
+  <script>
+  (function () {
+    const output = document.getElementById('results');
+    const report = document.getElementById('report');
+    const results = {};
+    function add(name, value, kind, detail) {
+      results[name] = { value, detail: detail || '' };
+      const card = document.createElement('div'); card.className = 'result';
+      const head = document.createElement('strong'); head.textContent = name;
+      const outcome = document.createElement('span'); outcome.className = kind;
+      outcome.textContent = value + (detail ? ' · ' + detail : '');
+      card.append(head, outcome); output.appendChild(card);
+      report.textContent = JSON.stringify(results, null, 2);
+    }
+    async function keySystem(name, initType) {
+      const configuration = [{
+        initDataTypes: [initType],
+        audioCapabilities: [{ contentType: 'audio/mp4; codecs="mp4a.40.2"' }],
+        videoCapabilities: [{ contentType: 'video/mp4; codecs="avc1.42E01E"' }],
+        distinctiveIdentifier: 'not-allowed', persistentState: 'not-allowed',
+        sessionTypes: ['temporary']
+      }];
+      try {
+        const access = await navigator.requestMediaKeySystemAccess(name, configuration);
+        add(name, 'Available on this origin', 'pass', access.keySystem);
+      } catch (e) {
+        add(name, 'Unavailable on this origin', 'fail', e.name + ': ' + e.message);
+      }
+    }
+    async function run() {
+      output.replaceChildren(); Object.keys(results).forEach(key => delete results[key]);
+      add('Browser', navigator.userAgent, 'warn');
+      add('Page origin', location.protocol, location.protocol === 'https:' ? 'pass' : 'warn',
+          isSecureContext ? 'Secure context' : 'Not a secure context; EME may be blocked');
+      add('Media Source Extensions', typeof MediaSource !== 'undefined' ? 'Present' : 'Missing',
+          typeof MediaSource !== 'undefined' ? 'pass' : 'fail');
+      const element = document.createElement('audio');
+      const aac = element.canPlayType('audio/mp4; codecs="mp4a.40.2"') || 'no';
+      add('AAC/MP4 playback', aac, aac === 'no' ? 'fail' : 'pass');
+      if (typeof navigator.requestMediaKeySystemAccess !== 'function') {
+        add('Encrypted Media Extensions (EME)', 'API missing', 'fail');
+        add('Widevine and FairPlay', 'Not testable without EME', 'warn');
+      } else {
+        add('Encrypted Media Extensions (EME)', 'API present', 'pass');
+        await keySystem('com.widevine.alpha', 'cenc');
+        await keySystem('com.apple.fps.1_0', 'sinf');
+      }
+    }
+    document.getElementById('run').addEventListener('click', run);
+    run().catch(error => add('Diagnostic failure', error.message, 'fail'));
+  })();
+  </script>
+</body>
+</html>
