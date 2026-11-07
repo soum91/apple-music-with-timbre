@@ -1,5 +1,13 @@
 # Changelog
 
+## [apple-music-timbre-gecko-v0.2.0-b2] - 2026-11-07
+
+## Verified changes since timbre-radio-v0.1.0-b1
+
+- Correct Gecko app identity to Apple Music + Timbre with full music navigation ([`37358835`](https://github.com/soum91/apple-music-with-timbre/commit/3735883513441d396daf248aa25815109ae955a8); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/README.md`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, and 6 more)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/timbre-radio-v0.1.0-b1...apple-music-timbre-gecko-v0.2.0-b2)
+
 ## Apple Music + Timbre (Gecko) 0.2.8 build 10 (Gecko view activation experiment, 2026-11-07)
 
 - After attaching `GeckoSession` to the SwiftUI-hosted `GeckoView`, reasserts tab activity and focus on the next main UI cycle. This follows the native Firefox Gecko tab lifecycle more closely and tests whether missing surface activation causes the reported silent Web Audio and WAV playback.
