@@ -16,7 +16,7 @@
       "localizedDescription": "The native Apple Music + Timbre shell uses cached Gecko and includes a separate Timbre Safari WebExtension. Apple Music full protected-track EQ and Radio are experimental, not confirmed.",
       "iconURL": "https://drive.google.com/uc?export=download&id=1upX32ngoZTVfeNL99OCSoHVJ7f_NVq-Z",
       "tintColor": "#6366F1",
-      "category": "music",
+      "category": "entertainment",
       "versions": [
         {
           "version": "0.2.6",
@@ -105,7 +105,7 @@
       "localizedDescription": "Version 0.3.0 opens Apple Music free radio in a web player and tests whether Web Audio can reach its signal. Web EQ activates only after samples are detected. Safari playback is confirmed, but app web playback and audible EQ need device verification. Native MusicKit remains experimental; imported unprotected audio retains Timbre EQ.",
       "iconURL": "https://drive.google.com/uc?export=download&id=1upX32ngoZTVfeNL99OCSoHVJ7f_NVq-Z",
       "tintColor": "#6366F1",
-      "category": "music",
+      "category": "entertainment",
       "versions": [
         {
           "version": "0.3.0",

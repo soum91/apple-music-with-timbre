@@ -23,7 +23,7 @@ console.log(JSON.stringify({
   tintColor: '#6366F1', apps: [{
     name: 'Apple Music with Timbre', bundleIdentifier: 'com.soum91.applemusictimbre',
     developerName: 'soum91', subtitle: 'Apple Music web radio and audio access test',
-    localizedDescription: description, iconURL, tintColor: '#6366F1', category: 'music',
+    localizedDescription: description, iconURL, tintColor: '#6366F1', category: 'entertainment',
     versions: [version], version: version.version, buildVersion: version.buildVersion,
     versionDate: version.date, versionDescription: description, downloadURL, size: file.size
   }], news: []

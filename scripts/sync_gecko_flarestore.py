@@ -18,6 +18,11 @@ def synchronize(path: Path, args: argparse.Namespace) -> None:
     if len(candidates) != 1:
         raise ValueError(f"{path}: expected exactly one Gecko app, got {len(candidates)}")
     app = candidates[0]
+    # The AltStore-compatible feed schema does not define a "music" category.
+    # Keep both published app listings importable after every automatic update.
+    for listing in catalog["apps"]:
+        if listing.get("category") == "music":
+            listing["category"] = "entertainment"
     item = {
         "version": args.version,
         "buildVersion": args.build,
