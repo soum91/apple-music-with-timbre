@@ -95,6 +95,14 @@ final class GeckoMusicState: ObservableObject {
         session.load(url.absoluteString)
         status = "Running the embedded Gecko EME, Widevine and FairPlay checks. Local file origins can restrict EME."
     }
+    func showAudioOutputTest() {
+        guard let url = Bundle.main.url(forResource: "audio-output-test", withExtension: "html") else {
+            errorMessage = "The audible Gecko output test is missing from this build."
+            return
+        }
+        session.load(url.absoluteString)
+        status = "Gecko audible test loaded. Tap both tone buttons to test unprotected browser output."
+    }
     func navigate(to section: MusicSection) {
         session.load(section.url)
     }
@@ -319,6 +327,13 @@ struct AppleMusicTimbreGeckoView: View {
                             .textSelection(.enabled)
                     }
                     Section("Separate Gecko test") {
+                        Button("Open audible Gecko sound test") {
+                            showDiagnostics = false
+                            gecko.showAudioOutputTest()
+                            playerMode = .gecko
+                        }
+                        Text("Play a generated Web Audio tone and generated WAV. If either is audible, Gecko can output that unprotected audio. This cannot confirm an Apple Music DRM or EQ path.")
+                            .font(.footnote).foregroundStyle(.secondary)
                         Button("Open Gecko EME/Widevine/FairPlay probe") {
                             showDiagnostics = false
                             gecko.showProtectedMediaTest()
@@ -356,6 +371,11 @@ struct AppleMusicTimbreGeckoView: View {
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                     Section("Protected-media check") {
+                        Button("Test Gecko audio output with generated tones") {
+                            gecko.showAudioOutputTest()
+                            playerMode = .gecko
+                            showAbout = false
+                        }
                         Text("This build's embedded media-module inventory and the Gecko web API test are separate checks. They do not prove that Apple Music will authorize a full track.")
                         if let report = DRMBundleReport.installed {
                             LabeledContent("Bundled Widevine module", value: report.containsWidevineCDM ? "Present" : "Absent")

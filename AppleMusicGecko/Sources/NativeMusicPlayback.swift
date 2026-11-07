@@ -14,6 +14,7 @@ final class NativeMusicPlaybackState: ObservableObject {
     @Published var stations: [Station] = []
     @Published var status = "Connect Apple Music to test native playback."
     @Published var errorMessage: String?
+    @Published var catalogIssue: String?
     @Published var busy = false
     @Published var currentTitle = "Nothing playing"
     @Published var diagnosticEvents: [String] = []
@@ -40,6 +41,7 @@ final class NativeMusicPlaybackState: ObservableObject {
             "Apple Music + Timbre | debug report",
             "Version: \(version) (\(build))",
             "iOS: \(UIDevice.current.systemVersion)",
+            "Installed bundle identifier: \(Bundle.main.bundleIdentifier ?? "unknown")",
             "MusicKit authorization: \(authorization)",
             "Subscription check: \(subscription)",
             "MusicKit status: \(status)",
@@ -49,6 +51,7 @@ final class NativeMusicPlaybackState: ObservableObject {
             "Audio route: \(route.isEmpty ? "none" : route)",
             "Output sample rate: \(Int(audio.sampleRate)) Hz",
             "Last error: \(errorMessage ?? "none")",
+            "Catalog issue: \(catalogIssue ?? "none")",
             "Audio probe inspected: \(audioProbeUpdated)",
             "",
             TimbreNativeAudioProbe.snapshot(),
@@ -62,6 +65,11 @@ final class NativeMusicPlaybackState: ObservableObject {
         let primary = error as NSError
         let underlying = primary.userInfo[NSUnderlyingErrorKey] as? NSError
         var result = "\(primary.localizedDescription) [domain=\(primary.domain), code=\(primary.code)]"
+        if let tokenError = error as? MusicTokenRequestError {
+            // The typed enum case is more useful than NSError code 0 and
+            // contains no token or credential value.
+            result += " [MusicKit token case=\(String(describing: tokenError))]"
+        }
         if let underlying {
             result += " [underlying domain=\(underlying.domain), code=\(underlying.code), description=\(underlying.localizedDescription)]"
         }
@@ -126,11 +134,11 @@ final class NativeMusicPlaybackState: ObservableObject {
         do {
             let canPlay = try await MusicSubscription.current.canPlayCatalogContent
             subscription = canPlay ? "Catalog subscription available" : "Catalog subscription unavailable"
-            status = canPlay ? "Native playback is available to test. No Timbre DSP on protected audio." :
+            status = canPlay ? "Subscription found. Checking whether this signed app can access the catalog." :
                 "Try free radio or your purchased music. Catalog tracks may require a subscription."
         } catch {
             subscription = "Status request failed"
-            errorMessage = "MusicKit subscription check: \(describe(error))"
+            catalogIssue = "MusicKit subscription check: \(describe(error))"
             log("FAIL: Music subscription refresh: \(describe(error))")
         }
         await loadStations()
@@ -145,15 +153,18 @@ final class NativeMusicPlaybackState: ObservableObject {
             stations = Array(try await request.response().stations)
                 .sorted { $0.isLive && !$1.isLive }
             hasLoadedStations = true
+            catalogIssue = nil
             log("PASS: Station search returned \(stations.count) stations")
             if stations.isEmpty {
                 status = "Station search returned zero results. Try searching a specific station name."
+            } else {
+                status = "Station catalog loaded. Choose a station to test native playback."
             }
         } catch {
             hasLoadedStations = false
             let details = describe(error)
-            if !reportOnly { errorMessage = "Station lookup: \(details)" }
-            status = "Station catalog request failed. Open Diagnostics for a copyable report."
+            catalogIssue = "Station lookup: \(details)"
+            status = "MusicKit catalog authentication failed. The player has not started, so audio and DRM cannot be assessed yet."
             log("FAIL: Station catalog request: \(details)")
         }
     }
@@ -174,7 +185,8 @@ final class NativeMusicPlaybackState: ObservableObject {
             songs = Array(response.songs)
             stations = Array(response.stations)
         } catch {
-            errorMessage = "MusicKit search: \(describe(error))"
+            catalogIssue = "MusicKit search: \(describe(error))"
+            status = "Cannot search Apple Music until this signed app can fetch MusicKit tokens."
             log("FAIL: MusicKit search: \(describe(error))")
         }
     }
@@ -231,6 +243,14 @@ struct NativeMusicPlaybackView: View {
                     Label(music.authorization == .authorized ? "MusicKit authorized" : "MusicKit access required",
                           systemImage: music.authorization == .authorized ? "checkmark.shield" : "lock")
                     Text(music.subscription).font(.subheadline)
+                    if let issue = music.catalogIssue {
+                        Label("MusicKit catalog unavailable", systemImage: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                        Text(issue).font(.footnote).textSelection(.enabled)
+                        Text("Your subscription is detected, but this signed app may lack MusicKit App Service access for its exact bundle identifier. The token error is not evidence that DRM blocked an audio stream.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                        Button("Retry catalog lookup") { Task { await music.loadStations(force: true) } }
+                    }
                     if music.authorization != .authorized {
                         Button("Connect Apple Music") { Task { await music.connect() } }
                     } else {
@@ -259,7 +279,8 @@ struct NativeMusicPlaybackView: View {
                 }
                 Section(section == .radio ? "Live and featured radio" : "Radio stations") {
                     if music.stations.isEmpty {
-                        Text("Connect Apple Music and refresh to discover stations.")
+                        Text(music.catalogIssue == nil ? "Connect Apple Music and refresh to discover stations." :
+                                "No stations loaded because MusicKit token or catalog authorization failed. See the inline error above.")
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                     ForEach(music.stations) { station in

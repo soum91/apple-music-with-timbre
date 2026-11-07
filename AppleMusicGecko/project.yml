@@ -6,8 +6,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: '5.0'
-    MARKETING_VERSION: '0.2.5'
-    CURRENT_PROJECT_VERSION: '7'
+    MARKETING_VERSION: '0.2.6'
+    CURRENT_PROJECT_VERSION: '8'
     FRAMEWORK_SEARCH_PATHS: '$(inherited) $(PROJECT_DIR)/Dependencies'
     OTHER_LDFLAGS: '$(inherited) -framework GeckoView'
 targets:
@@ -19,11 +19,13 @@ targets:
       - Assets.xcassets
       - path: Resources/drm-diagnostic.html
         buildPhase: resources
+      - path: Resources/audio-output-test.html
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.soum91.applemusictimbre.gecko
-        MARKETING_VERSION: '0.2.5'
-        CURRENT_PROJECT_VERSION: '7'
+        MARKETING_VERSION: '0.2.6'
+        CURRENT_PROJECT_VERSION: '8'
         SWIFT_OBJC_BRIDGING_HEADER: '$(PROJECT_DIR)/Sources/NativeAudioProbe.h'
         TARGETED_DEVICE_FAMILY: '1,2'
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
@@ -36,8 +38,8 @@ targets:
       path: Info.plist
       properties:
         CFBundleDisplayName: Apple Music + Timbre
-        CFBundleShortVersionString: '0.2.5'
-        CFBundleVersion: '7'
+        CFBundleShortVersionString: '0.2.6'
+        CFBundleVersion: '8'
         ITSAppUsesNonExemptEncryption: false
         NSAppleMusicUsageDescription: "Play your Apple Music subscription tracks and radio through Apple's native MusicKit player."
         UIBackgroundModes: [audio]
@@ -61,14 +63,14 @@ targets:
         SKIP_INSTALL: YES
         APPLICATION_EXTENSION_API_ONLY: YES
         OTHER_LDFLAGS: ''
-        MARKETING_VERSION: '0.2.5'
-        CURRENT_PROJECT_VERSION: '7'
+        MARKETING_VERSION: '0.2.6'
+        CURRENT_PROJECT_VERSION: '8'
     info:
       path: SafariExtension/Info.plist
       properties:
         CFBundleDisplayName: Timbre EQ for Safari
-        CFBundleShortVersionString: '0.2.5'
-        CFBundleVersion: '7'
+        CFBundleShortVersionString: '0.2.6'
+        CFBundleVersion: '8'
         NSExtension:
           NSExtensionPointIdentifier: com.apple.Safari.web-extension
           NSExtensionPrincipalClass: '$(PRODUCT_MODULE_NAME).SafariWebExtensionHandler'

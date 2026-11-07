@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gecko Audio Output Test</title>
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { margin: 0; padding: 22px; background: #11131d; color: #f0f1ff; }
+    h1 { font-size: 1.6rem; line-height: 1.2; }
+    p, li { color: #c2c4d9; line-height: 1.45; }
+    button { display: block; background: #6366f1; color: white; border: 0; border-radius: 12px;
+             padding: 14px 16px; width: 100%; margin: 12px 0; font-weight: 600; font-size: 1rem; }
+    button.secondary { background: #303449; }
+    #report { width: 100%; box-sizing: border-box; min-height: 210px; margin-top: 12px; background: #1c1f2e;
+              border: 1px solid #44465c; color: #e1e3ee; padding: 12px; border-radius: 8px; font-size: 12px; }
+    #player { width: 100%; display: block; margin: 12px 0; }
+    .box { border: 1px solid #3d415b; border-radius: 15px; padding: 14px; }
+  </style>
+</head>
+<body>
+  <h1>Gecko audio output test</h1>
+  <p>This page generates its own unprotected sound. It does not contact Apple Music or use any DRM keys.
+  Both buttons need a physical tap because browsers restrict autoplay.</p>
+  <div class="box">
+    <button id="tone">1. Play 2-second Web Audio tone</button>
+    <button id="wav">2. Play 2-second generated WAV</button>
+    <audio id="player" controls preload="none"></audio>
+    <p><strong>Listen:</strong> Can you hear either tone? If yes, Gecko's output can play unprotected audio.
+    If the WAV is audible but Apple Music stays silent, the failure is more specific than a global output problem.
+    This test cannot confirm an Apple Music license or Timbre EQ processing.</p>
+  </div>
+  <button id="copy" class="secondary">Copy test report</button>
+  <textarea id="report" readonly aria-label="Copyable audio test results"></textarea>
+  <script>
+    const lines = ['Apple Music + Timbre | Gecko audible test', 'Test origin: local bundled HTML',
+                   'No protected content or network requests are used.'];
+    const out = document.getElementById('report');
+    const player = document.getElementById('player');
+    const log = message => { lines.push(`${new Date().toISOString()} ${message}`); out.value = lines.join('\n'); };
+    log('Ready. Tap each test and note whether you physically hear it.');
+
+    document.getElementById('tone').addEventListener('click', async () => {
+      try {
+        const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextCtor) throw Error('Web Audio API not exposed');
+        const context = new AudioContextCtor();
+        await context.resume();
+        const oscillator = context.createOscillator();
+        const volume = context.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 440;
+        volume.gain.value = 0.12;
+        oscillator.connect(volume);
+        volume.connect(context.destination);
+        oscillator.onended = () => { log('Web Audio oscillator ended. Audible output must be confirmed by listener.'); context.close(); };
+        oscillator.start();
+        oscillator.stop(context.currentTime + 2);
+        log(`Web Audio start: state=${context.state}, sampleRate=${context.sampleRate}Hz`);
+      } catch (error) { log(`Web Audio ERROR: ${error.name}: ${error.message}`); }
+    });
+
+    function generatedWav() {
+      const rate = 44100, duration = 2, count = rate * duration;
+      const output = new ArrayBuffer(44 + count * 2);
+      const view = new DataView(output);
+      const stringAt = (offset, value) => { for (let i = 0; i < value.length; i++) view.setUint8(offset + i, value.charCodeAt(i)); };
+      stringAt(0, 'RIFF'); view.setUint32(4, output.byteLength - 8, true);
+      stringAt(8, 'WAVE'); stringAt(12, 'fmt ');
+      view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+      view.setUint32(24, rate, true); view.setUint32(28, rate * 2, true);
+      view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+      stringAt(36, 'data'); view.setUint32(40, count * 2, true);
+      for (let n = 0; n < count; n++) {
+        const ramp = Math.min(1, n / 1000, (count - n) / 1000);
+        view.setInt16(44 + n * 2, Math.round(9000 * ramp * Math.sin(2 * Math.PI * 440 * n / rate)), true);
+      }
+      return new Blob([output], {type: 'audio/wav'});
+    }
+
+    let wavURL;
+    document.getElementById('wav').addEventListener('click', async () => {
+      try {
+        if (wavURL) URL.revokeObjectURL(wavURL);
+        wavURL = URL.createObjectURL(generatedWav());
+        player.src = wavURL;
+        player.volume = 0.7;
+        await player.play();
+        log(`Generated WAV play() resolved: paused=${player.paused}, readyState=${player.readyState}, volume=${player.volume}`);
+      } catch (error) { log(`Generated WAV ERROR: ${error.name}: ${error.message}`); }
+    });
+    player.addEventListener('ended', () => log(`Generated WAV ended at ${player.currentTime.toFixed(2)}s. Audible output must be confirmed by listener.`));
+    player.addEventListener('error', () => log(`Generated WAV media error code=${player.error ? player.error.code : 'unknown'}`));
+
+    document.getElementById('copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(out.value); log('Copied to clipboard.'); }
+      catch (error) { out.focus(); out.select(); const ok = document.execCommand('copy'); log(`Selection copy fallback: ${ok}`); }
+    });
+  </script>
+</body>
+</html>

@@ -1,5 +1,14 @@
 # Changelog
 
+## Apple Music + Timbre (Gecko) 0.2.6 build 8 (native token error and audible Gecko diagnostics, 2026-11-07)
+
+- Prevented automatic native station catalog lookup failures from presenting a blocking MusicKit alert. The native view now keeps its controls available and shows a retryable inline error with the reported MusicKit token case. A catalog request failure is explicitly distinguished from an audio/DRM failure.
+- Added the installed app bundle identifier and a sanitized typed MusicKit token-error case to the copyable diagnostic report to help diagnose App ID/MusicKit App Service mismatches after sideload signing.
+- Added a packaged **Gecko audible audio output test** with two local generated, unprotected signals: an oscillator via Web Audio and a generated WAV via an HTML audio element. Each test records API results on a copyable local page and requires the user to confirm what they actually hear. The test does not request or decode Apple Music streams.
+- Bumped the standalone host and nested Safari extension to **0.2.6 (build 8)**. Reused the existing Gecko binary and Timbre extension sources without rebuilding the Gecko engine.
+
+Known limitations: A signing provider's MusicKit App Service configuration cannot be corrected by this UI change. Catalog requests remain blocked until Apple Music accepts the app's developer/user token. Gecko's apparent playing state can coexist with silence; successful local audio tests would narrow that failure but would not prove DRM is the sole cause. Actual on-device sound output and protected-track EQ remain unverified.
+
 ## Apple Music + Timbre (Gecko) 0.2.5 build 7 (native callback feasibility probe, 2026-11-07)
 
 - Added an observation-only native `AUGraphSetNodeInputCallback`/`AudioUnitSetProperty` callback probe, adapted from the architecture proven in the separate Amazon Music + Timbre project. The code instruments imports in our own application images, excludes the Gecko runtime and Apple's system frameworks, and counts registrations, render calls, non-silent frames, and nonempty buffer pointers. It does not inspect, modify, decrypt, save, or transmit samples.

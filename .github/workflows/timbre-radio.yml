@@ -105,42 +105,42 @@ jobs:
           python3 AppleMusicGecko/scripts/package_gecko.py \
             --firefox-ipa "$RUNNER_TEMP/firefox-package/firefox.ipa" \
             --app "$RUNNER_TEMP/timbre-radio/Build/Products/Release-iphoneos/AppleMusicGecko.app" \
-            --output "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.5-unsigned.ipa"
+            --output "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.6-unsigned.ipa"
       - name: Upload unsigned IPA
         uses: actions/upload-artifact@v4
         with:
-          name: Apple-Music-Timbre-Gecko-0.2.5-unsigned
-          path: ${{ runner.temp }}/Apple-Music-Timbre-Gecko-0.2.5-unsigned.ipa
+          name: Apple-Music-Timbre-Gecko-0.2.6-unsigned
+          path: ${{ runner.temp }}/Apple-Music-Timbre-Gecko-0.2.6-unsigned.ipa
           if-no-files-found: error
       - name: Publish test prerelease with factual notes
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          notes='Added an observation-only native audio callback feasibility probe, using in-process AUGraph and AudioUnit callback hooks based on the Amazon Music + Timbre architecture. The copyable native debug report now records hook registration attempts, render callback counts, frames, format and nonempty buffer pointers, with explicit attribution limits. The probe does not inspect or process samples, bypass FairPlay, or establish MusicKit EQ support. The cached Gecko engine is unchanged; native full-track playback and radio still require device testing and appropriate MusicKit signing capabilities. Includes the existing Safari WebExtension; sign the nested extension with the host.'
-          gh release create apple-music-timbre-gecko-v0.2.5-b7 "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.5-unsigned.ipa" \
-            --prerelease --title 'Apple Music + Timbre 0.2.5 (native audio probe)' \
+          notes='Native MusicKit station token errors now appear inline with retry instead of interrupting the screen with a modal alert. Diagnostics display the installed bundle identifier and typed MusicKit token-error case. Added a standalone audible Gecko test with a generated Web Audio oscillator and generated WAV file; it never requests or decrypts Apple Music. The cached Gecko engine is unchanged. Token provisioning and paid protected-track EQ remain unresolved, and actual audible test results require device verification.'
+          gh release create apple-music-timbre-gecko-v0.2.6-b8 "$RUNNER_TEMP/Apple-Music-Timbre-Gecko-0.2.6-unsigned.ipa" \
+            --prerelease --title 'Apple Music + Timbre 0.2.6 (audible Gecko test)' \
             --notes "$notes"
       - name: Refresh both FlareStore source aliases
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          asset='Apple-Music-Timbre-Gecko-0.2.5-unsigned.ipa'
-          tag='apple-music-timbre-gecko-v0.2.5-b7'
+          asset='Apple-Music-Timbre-Gecko-0.2.6-unsigned.ipa'
+          tag='apple-music-timbre-gecko-v0.2.6-b8'
           gh release view "$tag" --json assets -q '.assets[].name' | grep -Fx "$asset"
           size=$(stat -f '%z' "$RUNNER_TEMP/$asset")
-          notes='Added an observation-only native Core Audio callback probe with in-app inspect action and copyable counts. It does not decrypt, capture or EQ MusicKit samples; protected stream support remains unverified.'
+          notes='Avoid blocking native station-error alerts; show sanitized MusicKit token-case and installed bundle ID. Added an audible local Web Audio/WAV test inside Gecko. No protected audio access or EQ was added.'
           git fetch origin main
           git checkout -B main origin/main
           python3 scripts/sync_gecko_flarestore.py \
-            --version 0.2.5 --build 7 --size "$size" \
+            --version 0.2.6 --build 8 --size "$size" \
             --download-url "https://github.com/soum91/apple-music-with-timbre/releases/download/$tag/$asset" \
             --notes "$notes"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add repo.json source.json
           if ! git diff --cached --quiet; then
-            git commit -m 'catalog: publish Apple Music + Timbre Gecko 0.2.5 build 7'
+            git commit -m 'catalog: publish Apple Music + Timbre Gecko 0.2.6 build 8'
             git push origin main
           fi
       - name: Upload compiler log on failure
