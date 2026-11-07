@@ -185,6 +185,23 @@ struct AppleMusicTimbreGeckoView: View {
     @State private var playerMode: PlayerMode = .gecko
     @State private var section: MusicSection = .home
     @State private var showAbout = false
+    @State private var showDiagnostics = false
+
+    private var debugReport: String {
+        let modules = DRMBundleReport.installed
+        let inventory = modules.map {
+            "Widevine bundled: \($0.containsWidevineCDM); FairPlay bundled: \($0.containsFairPlayCDM)"
+        } ?? "Bundled DRM module inventory not available"
+        return [
+            native.diagnosticReport,
+            "",
+            "Gecko browser status: \(gecko.status)",
+            "Gecko runtime: \(GeckoRuntime.version)",
+            inventory,
+            "Gecko EME results: The embedded HTML test displays these in Gecko, but its JavaScript output is not yet transmitted to the native report.",
+            "Important: MusicKit audio is protected and cannot be tapped by Timbre."
+        ].joined(separator: "\n")
+    }
     @State private var showEQ = false
 
     var body: some View {
@@ -205,6 +222,8 @@ struct AppleMusicTimbreGeckoView: View {
                     Label(playerMode.rawValue, systemImage: playerMode.symbol)
                         .labelStyle(.iconOnly)
                 }.accessibilityLabel("Playback engine: \(playerMode.rawValue)")
+                Button { showDiagnostics = true } label: { Image(systemName: "ladybug") }
+                    .accessibilityLabel("Open diagnostics and share report")
                 Button { showAbout = true } label: { Image(systemName: "info.circle") }
             }.padding(.horizontal, 14).frame(height: 46)
 
@@ -264,6 +283,53 @@ struct AppleMusicTimbreGeckoView: View {
                     .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showEQ = false } } }
             }.presentationDetents([.medium, .large])
         }
+        .sheet(isPresented: $showDiagnostics) {
+            NavigationStack {
+                Form {
+                    Section("Run actual MusicKit tests") {
+                        Button(native.diagnosing ? "Running tests…" : "Run diagnostics") {
+                            Task { await native.runDiagnostics() }
+                        }
+                        .disabled(native.diagnosing)
+                        if native.diagnosing { ProgressView("Checking subscription, song search and radio catalog") }
+                        Text("Tests authorization, the subscription API, a real song-catalog request, and a real station-catalog request. No playback is started.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                    Section("Export report") {
+                        Button {
+                            UIPasteboard.general.string = debugReport
+                        } label: {
+                            Label("Copy full debug report", systemImage: "doc.on.doc")
+                        }
+                        ShareLink(item: debugReport) {
+                            Label("Share debug report", systemImage: "square.and.arrow.up")
+                        }
+                        Text("Copy, then paste the report into the chat. It contains request error domains and codes, but no account identifiers, tokens or cookies.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                    Section("Results") {
+                        Text(debugReport)
+                            .font(.system(.caption, design: .monospaced))
+                            .textSelection(.enabled)
+                    }
+                    Section("Separate Gecko test") {
+                        Button("Open Gecko EME/Widevine/FairPlay probe") {
+                            showDiagnostics = false
+                            gecko.showProtectedMediaTest()
+                            playerMode = .gecko
+                        }
+                        Text("This launches the browser-side probe. Its HTML page has its own Copy and Share buttons. A local-file origin may limit EME. Browser results are not captured in this native MusicKit report.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                }
+                .navigationTitle("Debug report")
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { showDiagnostics = false }
+                    }
+                }
+            }
+        }
         .sheet(isPresented: $showAbout) {
             NavigationStack {
                 Form {
@@ -271,6 +337,17 @@ struct AppleMusicTimbreGeckoView: View {
                         Text("Safari plays full subscription tracks on the test iPhone. Our custom Gecko build currently receives Apple Music previews of approximately 90 seconds, even with an active subscription.")
                         Text("Timbre EQ affects Gecko's preview audio, but full protected-track processing is not confirmed. Radio also remains unavailable in Gecko.")
                         Text("Choose Native MusicKit using the engine menu to test authenticated subscription tracks and radio. Neither MusicKit nor WebKit exposes protected PCM to Timbre. Native playback is not a DRM bypass.")
+                    }
+                    Section("Debug report") {
+                        Button("Open diagnostics and export report") {
+                            showAbout = false
+                            // Show the diagnostic sheet after closing About.
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+                                showDiagnostics = true
+                            }
+                        }
+                        Text("Real MusicKit catalog checks, full error domains and codes, Copy and iOS Share actions.")
+                            .font(.footnote).foregroundStyle(.secondary)
                     }
                     Section("Protected-media check") {
                         Text("This build's embedded media-module inventory and the Gecko web API test are separate checks. They do not prove that Apple Music will authorize a full track.")
