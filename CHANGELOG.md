@@ -1,5 +1,13 @@
 # Changelog
 
+## [apple-music-timbre-gecko-v0.2.1-b3] - 2026-11-07
+
+## Verified changes since apple-music-timbre-gecko-v0.2.0-b2
+
+- Add protected-media diagnostics and correct Apple Music preview findings ([`8d6fb2da`](https://github.com/soum91/apple-music-with-timbre/commit/8d6fb2da83094d70ecac3e463c1c21a156c4208c); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/README.md`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, and 3 more)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.0-b2...apple-music-timbre-gecko-v0.2.1-b3)
+
 ## [apple-music-timbre-gecko-v0.2.0-b2] - 2026-11-07
 
 ## Verified changes since timbre-radio-v0.1.0-b1
