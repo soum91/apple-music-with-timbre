@@ -1,13 +1,62 @@
 {
-  "name": "Apple Music with Timbre",
+  "name": "Apple Music + Timbre",
   "identifier": "com.soum91.apple-music-with-timbre.source",
-  "subtitle": "Apple Music web radio and Timbre audio test",
-  "description": "Version 0.3.0 opens Apple Music free radio in a web player and tests whether Web Audio can reach its signal. Web EQ activates only after samples are detected. Safari playback is confirmed, but app web playback and audible EQ need device verification. Native MusicKit remains experimental; imported unprotected audio retains Timbre EQ.",
+  "subtitle": "Apple Music experiments and Timbre Safari EQ",
+  "description": "AM+T sideloading source for Gecko + Safari extension test builds and the earlier native MusicKit/WebKit prototype. Safari protected audio EQ has not been verified.",
   "website": "https://github.com/soum91/apple-music-with-timbre",
-  "sourceURL": "https://drive.google.com/uc?export=download&id=1XObhCrkmmS_mW_NHWu5I9JN2ATcEa6C1",
+  "sourceURL": "https://raw.githubusercontent.com/soum91/apple-music-with-timbre/main/repo.json",
   "iconURL": "https://drive.google.com/uc?export=download&id=1upX32ngoZTVfeNL99OCSoHVJ7f_NVq-Z",
   "tintColor": "#6366F1",
   "apps": [
+    {
+      "name": "Apple Music + Timbre (Gecko + Safari)",
+      "bundleIdentifier": "com.soum91.applemusictimbre.gecko",
+      "developerName": "soum91",
+      "subtitle": "Gecko player with bundled Safari EQ extension",
+      "localizedDescription": "The native Apple Music + Timbre shell uses cached Gecko and includes a separate Timbre Safari WebExtension. Apple Music full protected-track EQ and Radio are experimental, not confirmed.",
+      "iconURL": "https://drive.google.com/uc?export=download&id=1upX32ngoZTVfeNL99OCSoHVJ7f_NVq-Z",
+      "tintColor": "#6366F1",
+      "category": "music",
+      "versions": [
+        {
+          "version": "0.2.2",
+          "buildVersion": "4",
+          "date": "2026-11-07T16:25:04Z",
+          "localizedDescription": "Added a genuine iOS Safari WebExtension containing Timbre's EQ engine, presets, controls, and effects. Full Safari Apple Music DRM audio EQ remains unverified; Gecko currently receives previews.",
+          "changelog": "Added a genuine iOS Safari WebExtension containing Timbre's EQ engine, presets, controls, and effects. Full Safari Apple Music DRM audio EQ remains unverified; Gecko currently receives previews.",
+          "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.2-b4/Apple-Music-Timbre-Gecko-0.2.2-unsigned.ipa",
+          "size": 142516797,
+          "minOSVersion": "18.0"
+        },
+        {
+          "version": "0.2.1",
+          "buildVersion": "3",
+          "date": "2026-11-07T16:12:45Z",
+          "localizedDescription": "Added a Gecko DRM capability test in About and corrected the full-track playback claim after a Safari comparison. Does not fix paid previews or Radio.",
+          "changelog": "Added a Gecko DRM capability test in About and corrected the full-track playback claim after a Safari comparison. Does not fix paid previews or Radio.",
+          "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.1-b3/Apple-Music-Timbre-Gecko-0.2.1-unsigned.ipa",
+          "size": 142448145,
+          "minOSVersion": "18.0"
+        },
+        {
+          "version": "0.2.0",
+          "buildVersion": "2",
+          "date": "2026-11-07T15:52:46Z",
+          "localizedDescription": "Renamed the standalone Gecko app, added native Home/New/Radio/Search/Library navigation and the Timbre popup. Radio remains unresolved.",
+          "changelog": "Renamed the standalone Gecko app, added native Home/New/Radio/Search/Library navigation and the Timbre popup. Radio remains unresolved.",
+          "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.0-b2/Apple-Music-Timbre-Gecko-0.2.0-unsigned.ipa",
+          "size": 142445814,
+          "minOSVersion": "18.0"
+        }
+      ],
+      "version": "0.2.2",
+      "buildVersion": "4",
+      "versionDate": "2026-11-07T16:25:04Z",
+      "versionDescription": "Added a genuine iOS Safari WebExtension containing Timbre's EQ engine, presets, controls, and effects. Full Safari Apple Music DRM audio EQ remains unverified; Gecko currently receives previews.",
+      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.2-b4/Apple-Music-Timbre-Gecko-0.2.2-unsigned.ipa",
+      "size": 142516797,
+      "minOSVersion": "18.0"
+    },
     {
       "name": "Apple Music with Timbre",
       "bundleIdentifier": "com.soum91.applemusictimbre",
