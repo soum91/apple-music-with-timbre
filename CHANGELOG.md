@@ -1,5 +1,14 @@
 # Changelog
 
+## [apple-music-timbre-gecko-v0.2.6-b8] - 2026-11-07
+
+## Verified changes since apple-music-timbre-gecko-v0.2.5-b7
+
+- diagnostics: preserve MusicKit screen on token errors and add audible Gecko control tests ([`d9da70c7`](https://github.com/soum91/apple-music-with-timbre/commit/d9da70c7467ea27e7375905d5bce432ae06fa158); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/Resources/audio-output-test.html`, `AppleMusicGecko/Sources/NativeMusicPlayback.swift`, and 2 more)
+- catalog: publish Apple Music + Timbre Gecko 0.2.5 build 7 ([`e9b9eada`](https://github.com/soum91/apple-music-with-timbre/commit/e9b9eadabd8d40cee5504384f8846b321afc96ea); `repo.json`, `source.json`)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.5-b7...apple-music-timbre-gecko-v0.2.6-b8)
+
 ## [apple-music-timbre-gecko-v0.2.5-b7] - 2026-11-07
 
 ## Verified changes since apple-music-timbre-gecko-v0.2.4-b6
