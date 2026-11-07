@@ -13,19 +13,67 @@
     .pass { color: #58d68d; } .fail { color: #ff8f94; } .warn { color: #f9c66f; }
     button { border: 0; border-radius: 11px; color: white; background: #6366f1; padding: 12px 18px; font-weight: 700; }
     pre { white-space: pre-wrap; overflow-wrap: anywhere; color: #b9b9c8; font-size: 11px; }
+    textarea { width: 100%; min-height: 180px; margin-top: 12px; box-sizing: border-box; background: #242431; color: #f5f5fb; border: 1px solid #515168; border-radius: 12px; padding: 12px; font: 11px ui-monospace, monospace; }
+    #export-status { margin-top: 12px; } .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
   </style>
 </head>
 <body>
   <h1>Gecko DRM diagnostics</h1>
   <p>This page runs checks <b>inside the packaged Gecko engine</b>. The results are not a fix, and a local-file origin may produce a different EME result than music.apple.com.</p>
-  <button id="run">Run again</button>
+  <div class="toolbar"><button id="run">Run again</button><button id="copy">Copy report</button><button id="share">Share report</button></div>
+  <p id="export-status" role="status" aria-live="polite">Run the test, then Copy or Share the results. If clipboard access is denied, select the report field below and copy manually.</p>
   <div id="results" aria-live="polite">Running media capability checks…</div>
-  <details><summary>Copyable technical report</summary><pre id="report"></pre></details>
+  <details open><summary>Technical report (selectable)</summary><pre id="report"></pre><textarea id="report-text" readonly aria-label="Select all diagnostic report text"></textarea></details>
   <p>Even if EME works, that does not prove Apple's license service will send full tracks. No browser extension is entitled to intercept FairPlay-protected audio samples.</p>
   <script>
   (function () {
     const output = document.getElementById('results');
     const report = document.getElementById('report');
+    const reportText = document.getElementById('report-text');
+    const exportStatus = document.getElementById('export-status');
+    function currentReport() {
+      return JSON.stringify({
+        app: 'Apple Music + Timbre',
+        engine: 'Gecko embedded media diagnostics',
+        timestamp: new Date().toISOString(),
+        results: results
+      }, null, 2);
+    }
+    function updateReport() {
+      report.textContent = currentReport();
+      reportText.value = report.textContent;
+    }
+    async function copyReport() {
+      const value = reportText.value || currentReport();
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error('Clipboard API unavailable');
+        await navigator.clipboard.writeText(value);
+        exportStatus.textContent = 'Report copied. Paste it into the chat.';
+        return;
+      } catch (firstError) {
+        try {
+          reportText.focus();
+          reportText.select();
+          reportText.setSelectionRange(0, value.length);
+          if (!document.execCommand('copy')) throw new Error('Browser denied copy');
+          exportStatus.textContent = 'Report copied using selection fallback.';
+          return;
+        } catch (secondError) {
+          exportStatus.textContent = 'Clipboard blocked on this origin. Report text is selected below: long-press Copy in the selection menu.';
+        }
+      }
+    }
+    async function shareReport() {
+      if (!navigator.share) { await copyReport(); return; }
+      try {
+        await navigator.share({ title: 'Gecko DRM diagnostics', text: reportText.value });
+        exportStatus.textContent = 'Report shared.';
+      } catch (error) {
+        if (error.name !== 'AbortError') await copyReport();
+      }
+    }
+    document.getElementById('copy').addEventListener('click', copyReport);
+    document.getElementById('share').addEventListener('click', shareReport);
     const results = {};
     function add(name, value, kind, detail) {
       results[name] = { value, detail: detail || '' };
@@ -34,7 +82,7 @@
       const outcome = document.createElement('span'); outcome.className = kind;
       outcome.textContent = value + (detail ? ' · ' + detail : '');
       card.append(head, outcome); output.appendChild(card);
-      report.textContent = JSON.stringify(results, null, 2);
+      updateReport();
     }
     async function keySystem(name, initType) {
       const configuration = [{
@@ -45,7 +93,10 @@
         sessionTypes: ['temporary']
       }];
       try {
-        const access = await navigator.requestMediaKeySystemAccess(name, configuration);
+        const access = await Promise.race([
+          navigator.requestMediaKeySystemAccess(name, configuration),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out after 10 seconds')), 10000))
+        ]);
         add(name, 'Available on this origin', 'pass', access.keySystem);
       } catch (e) {
         add(name, 'Unavailable on this origin', 'fail', e.name + ': ' + e.message);
@@ -53,6 +104,8 @@
     }
     async function run() {
       output.replaceChildren(); Object.keys(results).forEach(key => delete results[key]);
+      exportStatus.textContent = 'Checking browser media APIs…';
+      updateReport();
       add('Browser', navigator.userAgent, 'warn');
       add('Page origin', location.protocol, location.protocol === 'https:' ? 'pass' : 'warn',
           isSecureContext ? 'Secure context' : 'Not a secure context; EME may be blocked');
@@ -69,6 +122,7 @@
         await keySystem('com.widevine.alpha', 'cenc');
         await keySystem('com.apple.fps.1_0', 'sinf');
       }
+      exportStatus.textContent = 'Tests completed. Copy report, Share report or select its text below.';
     }
     document.getElementById('run').addEventListener('click', run);
     run().catch(error => add('Diagnostic failure', error.message, 'fail'));
