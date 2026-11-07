@@ -26,3 +26,13 @@ Known limitations: the native controls still wrap Apple's website, and the dedic
 - Updated app and helper versions to 0.2.1 (build 3); the cached Gecko engine is unchanged.
 
 Known limitations: neither the preview issue nor Radio playback is fixed by this diagnostic release. Missing DRM support is a working hypothesis until the on-device browser support result is captured.
+
+## Apple Music + Timbre (Gecko) 0.2.2 (Safari extension experiment, 2026-11-07)
+
+- Added an iOS Safari WebExtension target to the existing Apple Music + Timbre host IPA, using its own native Safari extension handler.
+- Reused pinned soum91/timbre EQ sources in the build: page-world WebAudio DSP engine, isolated settings bridge, popup controls, presets, effects, and icons. The packaging script converts Firefox manifest metadata and background scripts to Safari-compatible manifest v3.
+- Added Safari installation and permission instructions in the app's About screen.
+- Updated the packaging and CI checks to require the Safari app extension, validate its contents, and sign the nested Safari extension along with the Gecko app.
+- Incremented app and embedded helper/extension metadata to version 0.2.2, build 4. The compiled Gecko engine remains unchanged.
+
+Known limitations: the new Safari extension is pending device validation. Safari's full Apple Music playback does not establish that protected FairPlay audio is available to the EQ. Gecko still receives previews and live Radio remains unresolved.

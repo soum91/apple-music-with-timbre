@@ -56,7 +56,12 @@ def package(ipa, app, output):
         shutil.copytree(gecko / 'PlugIns/Reynard Helper.appex', helper)
         plist_update(helper / 'Info.plist',
                      CFBundleIdentifier='com.soum91.applemusictimbre.gecko.Helper',
-                     CFBundleShortVersionString='0.2.1', CFBundleVersion='3')
+                     CFBundleShortVersionString='0.2.2', CFBundleVersion='4')
+        safari = dest / 'PlugIns/TimbreSafariExtension.appex'
+        safari_manifest = next((path for path in (
+            safari / 'manifest.json', safari / 'Resources/manifest.json') if path.is_file()), None)
+        if safari_manifest is None:
+            raise FileNotFoundError('Safari WebExtension manifest missing from embedded .appex')
 
         # Verify runtime essentials before signing. This is the same Gecko
         # engine that already runs Timbre in the Firefox native build.
@@ -65,6 +70,7 @@ def package(ipa, app, output):
             dest / 'Frameworks/XUL.dylib',
             dest / 'Frameworks/GeckoView.framework/Frameworks/extensions/timbre/manifest.json',
             dest / 'PlugIns/Reynard Helper.appex/Info.plist',
+            safari / 'Info.plist',
         ]
         for path in required:
             if not path.is_file():
@@ -74,16 +80,21 @@ def package(ipa, app, output):
         addon = json.loads(required[2].read_text())
         if addon.get('browser_specific_settings', {}).get('gecko', {}).get('id') != 'timbre@soum91':
             raise ValueError('Wrong Timbre add-on package')
+        safari_addon = json.loads(safari_manifest.read_text())
+        if safari_addon.get('background', {}).get('service_worker') != 'background.js':
+            raise ValueError('Safari WebExtension background worker is absent')
 
         for binary in sorted(dest.rglob('*')):
             if macho(binary):
                 run('codesign', '--force', '--sign', '-', '--timestamp=none', binary)
         for framework in sorted((dest / 'Frameworks').glob('*.framework')):
             run('codesign', '--force', '--sign', '-', '--timestamp=none', framework)
+        run('codesign', '--force', '--sign', '-', '--timestamp=none', safari)
         run('codesign', '--force', '--sign', '-', '--timestamp=none', helper)
         run('codesign', '--force', '--sign', '-', '--timestamp=none', dest)
         for path in [dest / 'AppleMusicGecko', required[0], required[1]]:
             run('codesign', '--verify', '--strict', path)
+        run('codesign', '--verify', '--strict', safari)
 
         output.parent.mkdir(parents=True, exist_ok=True)
         run('ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', payload, output)
@@ -93,6 +104,8 @@ def package(ipa, app, output):
             raise ValueError('IPA archive is damaged')
         if 'Payload/AppleMusicGecko.app/Info.plist' not in z.namelist():
             raise ValueError('Missing app Info.plist')
+        if 'Payload/AppleMusicGecko.app/PlugIns/TimbreSafariExtension.appex/Info.plist' not in z.namelist():
+            raise ValueError('Missing embedded Timbre Safari extension')
 
 
 if __name__ == '__main__':

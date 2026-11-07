@@ -6,8 +6,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: '5.0'
-    MARKETING_VERSION: '0.2.1'
-    CURRENT_PROJECT_VERSION: '3'
+    MARKETING_VERSION: '0.2.2'
+    CURRENT_PROJECT_VERSION: '4'
     FRAMEWORK_SEARCH_PATHS: '$(inherited) $(PROJECT_DIR)/Dependencies'
     OTHER_LDFLAGS: '$(inherited) -framework GeckoView'
 targets:
@@ -18,20 +18,21 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.soum91.applemusictimbre.gecko
-        MARKETING_VERSION: '0.2.1'
-        CURRENT_PROJECT_VERSION: '3'
+        MARKETING_VERSION: '0.2.2'
+        CURRENT_PROJECT_VERSION: '4'
         TARGETED_DEVICE_FAMILY: '1,2'
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - framework: Dependencies/GeckoView.framework
         embed: false
+      - target: TimbreSafariExtension
     info:
       path: Info.plist
       properties:
         CFBundleDisplayName: Apple Music + Timbre
-        CFBundleShortVersionString: '0.2.1'
-        CFBundleVersion: '3'
+        CFBundleShortVersionString: '0.2.2'
+        CFBundleVersion: '4'
         ITSAppUsesNonExemptEncryption: false
         UIBackgroundModes: [audio]
         UILaunchScreen: {}
@@ -41,6 +42,38 @@ targets:
             UIWindowSceneSessionRoleApplication:
               - UISceneConfigurationName: Default Configuration
                 UISceneDelegateClassName: '$(PRODUCT_MODULE_NAME).TimbreSceneDelegate'
+  TimbreSafariExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - SafariExtension/SafariWebExtensionHandler.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.soum91.applemusictimbre.gecko.safari
+        PRODUCT_NAME: TimbreSafariExtension
+        GENERATE_INFOPLIST_FILE: NO
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+        OTHER_LDFLAGS: ''
+        MARKETING_VERSION: '0.2.2'
+        CURRENT_PROJECT_VERSION: '4'
+    info:
+      path: SafariExtension/Info.plist
+      properties:
+        CFBundleDisplayName: Timbre EQ for Safari
+        CFBundleShortVersionString: '0.2.2'
+        CFBundleVersion: '4'
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.web-extension
+          NSExtensionPrincipalClass: '$(PRODUCT_MODULE_NAME).SafariWebExtensionHandler'
+    preBuildScripts:
+      - name: Stage Safari Timbre WebExtension
+        basedOnDependencyAnalysis: false
+        script: |
+          set -euo pipefail
+          python3 "$SRCROOT/scripts/stage_safari_extension.py" \
+            "$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH" \
+            --timbre-root "$SRCROOT/../timbre-source"
 schemes:
   AppleMusicGecko:
     build:

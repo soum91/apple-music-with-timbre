@@ -243,6 +243,15 @@ struct AppleMusicTimbreGeckoView: View {
                         }
                         Text("On the test page, choose Browser Support Test. A missing Widevine/FairPlay result would explain why paid tracks stay in preview, but cannot alone prove Apple's exact selection logic.")
                     }
+                    Section("Safari Extension") {
+                        Text("This app also installs Timbre EQ for Safari. In Safari, open the Extensions menu, enable Timbre EQ, and allow access to music.apple.com. The Safari extension has its own presets and settings.")
+                        Button("Open Apple Music in Safari") {
+                            if let url = URL(string: "https://music.apple.com") {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                        Text("Safari can play your subscribed tracks, but FairPlay-protected audio may not expose samples to the Web Audio EQ. Check the Timbre extension popup for its actual playback status.")
+                    }
                     Section("Engine") {
                         Text(gecko.status)
                         Text("Gecko \(GeckoRuntime.version)")
