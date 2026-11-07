@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 import WebKit
 import MusicKit
+import AVFoundation
 @preconcurrency import GeckoView
 
 private let indigo = Color(red: 99 / 255, green: 102 / 255, blue: 241 / 255)
@@ -55,6 +56,7 @@ final class GeckoMusicState: ObservableObject {
     @Published var status = "Ready"
     @Published var errorMessage: String?
     @Published var eqPopupURL: String?
+    @Published var outputSession = "Not configured"
     private(set) var session: GeckoSession
     private var started = false
 
@@ -77,6 +79,7 @@ final class GeckoMusicState: ObservableObject {
     func start() {
         guard !started else { return }
         started = true
+        preparePlaybackSession()
         session.open()
         session.setActive(true)
         session.setAddonTabActive(true)
@@ -100,6 +103,7 @@ final class GeckoMusicState: ObservableObject {
             errorMessage = "The audible Gecko output test is missing from this build."
             return
         }
+        preparePlaybackSession()
         session.load(url.absoluteString)
         status = "Gecko audible test loaded. Tap both tone buttons to test unprotected browser output."
     }
@@ -110,9 +114,22 @@ final class GeckoMusicState: ObservableObject {
     func forward() { session.goForward() }
     func setVisible(_ visible: Bool) {
         guard started else { return }
+        if visible { preparePlaybackSession() }
         session.setActive(visible)
         session.setAddonTabActive(visible)
         session.setFocused(visible)
+    }
+
+    func preparePlaybackSession() {
+        let audio = AVAudioSession.sharedInstance()
+        do {
+            try audio.setCategory(.playback, mode: .default)
+            try audio.setActive(true)
+            let outputs = audio.currentRoute.outputs.map { $0.portType.rawValue }.joined(separator: ", ")
+            outputSession = "Active playback, \(Int(audio.sampleRate)) Hz, output=\(outputs.isEmpty ? "none" : outputs), volume=\(audio.outputVolume)"
+        } catch {
+            outputSession = "Playback session setup failed: \(error.localizedDescription)"
+        }
     }
 
     func registerTimbre() async {
@@ -205,6 +222,7 @@ struct AppleMusicTimbreGeckoView: View {
             "",
             "Gecko browser status: \(gecko.status)",
             "Gecko runtime: \(GeckoRuntime.version)",
+            "Gecko playback audio session: \(gecko.outputSession)",
             inventory,
             "Gecko EME results: The embedded HTML test displays these in Gecko, but its JavaScript output is not yet transmitted to the native report.",
             "Important: a native render callback observation is not proof that the MusicKit stream can be EQ processed. No protected audio is decrypted or exported."
@@ -295,6 +313,20 @@ struct AppleMusicTimbreGeckoView: View {
         .sheet(isPresented: $showDiagnostics) {
             NavigationStack {
                 Form {
+                    Section("Audio output without DRM") {
+                        Button("Play native 2-second tone") { native.playLocalTone() }
+                        Text(native.localToneResult).font(.footnote).textSelection(.enabled)
+                        HStack {
+                            Button("I heard it") { native.reportLocalToneAudibility(heard: true) }
+                            Spacer()
+                            Button("It was silent") { native.reportLocalToneAudibility(heard: false) }
+                        }
+                        .disabled(native.localToneResult == "Not run yet")
+                        Text("This tone is generated inside the iPhone app using AVAudioPlayer. It bypasses Gecko, MusicKit, the network and DRM. The buttons record what you heard in the copyable report.")
+                            .font(.footnote).foregroundStyle(.secondary)
+                        Text("Gecko playback session: \(gecko.outputSession)")
+                            .font(.footnote).textSelection(.enabled)
+                    }
                     Section("Run actual MusicKit tests") {
                         Button("Inspect native audio path now") {
                             native.inspectAudioPath()

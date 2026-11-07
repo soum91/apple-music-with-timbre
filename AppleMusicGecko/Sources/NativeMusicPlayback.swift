@@ -20,6 +20,9 @@ final class NativeMusicPlaybackState: ObservableObject {
     @Published var diagnosticEvents: [String] = []
     @Published var diagnosing = false
     @Published var audioProbeUpdated = "Not yet checked"
+    @Published var localToneResult = "Not run yet"
+    @Published var localToneAudibility = "Not reported"
+    private var localTonePlayer: AVAudioPlayer?
 
     init() {
         TimbreNativeAudioProbe.install()
@@ -50,6 +53,10 @@ final class NativeMusicPlaybackState: ObservableObject {
             "Player status: \(player.state.playbackStatus)",
             "Audio route: \(route.isEmpty ? "none" : route)",
             "Output sample rate: \(Int(audio.sampleRate)) Hz",
+            "Audio session category/mode: \(audio.category.rawValue) / \(audio.mode.rawValue)",
+            "System output volume: \(audio.outputVolume)",
+            "Independent native tone: \(localToneResult)",
+            "Native tone audibility (reported by listener): \(localToneAudibility)",
             "Last error: \(errorMessage ?? "none")",
             "Catalog issue: \(catalogIssue ?? "none")",
             "Audio probe inspected: \(audioProbeUpdated)",
@@ -81,6 +88,59 @@ final class NativeMusicPlaybackState: ObservableObject {
         if diagnosticEvents.count > 80 {
             diagnosticEvents.removeFirst(diagnosticEvents.count - 80)
         }
+    }
+
+    /// A completely local, unprotected sound check. AVAudioPlayer is independent
+    /// of Gecko and MusicKit, and the player is retained for its full duration.
+    /// play() succeeding only means scheduling succeeded, NOT audible output.
+    func playLocalTone() {
+        do {
+            let audio = AVAudioSession.sharedInstance()
+            try audio.setCategory(.playback, mode: .default)
+            try audio.setActive(true)
+            let player = try AVAudioPlayer(data: Self.makeToneWAV())
+            player.volume = 0.7
+            player.prepareToPlay()
+            localTonePlayer?.stop()
+            localTonePlayer = player
+            let started = player.play()
+            let route = audio.currentRoute.outputs.map { $0.portType.rawValue }.joined(separator: ", ")
+            localToneResult = "play()=\(started), duration=\(String(format: "%.2f", player.duration))s, route=\(route), session=\(audio.category.rawValue), volume=\(audio.outputVolume)"
+            localToneAudibility = "Not reported"
+            log("NATIVE TONE: \(localToneResult). Physical audibility is not inferred.")
+        } catch {
+            localToneResult = "FAILED: \(describe(error))"
+            log("NATIVE TONE: \(localToneResult)")
+        }
+    }
+
+    func reportLocalToneAudibility(heard: Bool) {
+        localToneAudibility = heard ? "Heard" : "Silent"
+        log("NATIVE TONE LISTENER: \(localToneAudibility)")
+    }
+
+    private static func makeToneWAV() -> Data {
+        let rate = 44_100, frames = 88_200
+        var data = Data(capacity: 44 + frames * 2)
+        func word(_ value: UInt16) {
+            var little = value.littleEndian
+            withUnsafeBytes(of: &little) { data.append(contentsOf: $0) }
+        }
+        func dword(_ value: UInt32) {
+            var little = value.littleEndian
+            withUnsafeBytes(of: &little) { data.append(contentsOf: $0) }
+        }
+        func tag(_ value: String) { data.append(contentsOf: value.utf8) }
+        tag("RIFF"); dword(UInt32(36 + frames * 2)); tag("WAVE")
+        tag("fmt "); dword(16); word(1); word(1)
+        dword(UInt32(rate)); dword(UInt32(rate * 2)); word(2); word(16)
+        tag("data"); dword(UInt32(frames * 2))
+        for sampleIndex in 0..<frames {
+            let fade = min(1.0, Double(sampleIndex) / 1_000.0, Double(frames - sampleIndex) / 1_000.0)
+            let wave = sin(2.0 * Double.pi * 440.0 * Double(sampleIndex) / Double(rate))
+            word(UInt16(bitPattern: Int16((wave * fade * 9_000).rounded())))
+        }
+        return data
     }
 
     /// Tests real MusicKit API requests without starting or altering playback.

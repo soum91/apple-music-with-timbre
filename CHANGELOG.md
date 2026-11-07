@@ -1,5 +1,13 @@
 # Changelog
 
+## Apple Music + Timbre (Gecko) 0.2.7 build 9 (isolated sound output diagnostics, 2026-11-07)
+
+- Added an independent, generated two-second **AVAudioPlayer** tone in Debug Report. It bypasses Gecko, MusicKit, network access, and protected content. A physical-listening confirmation marks it as heard or silent; the outcome is included in the copyable report and is never inferred from `play()` alone.
+- Before opening or resuming Gecko, the wrapper now sets and activates an iOS `.playback` audio session, which can prevent mute-switch-related silence and supplies a recorded category, route, and output volume in diagnostics. Device behavior still needs validation.
+- Bumped the standalone app and nested Safari extension to **0.2.7 (build 9)**. Cached Gecko engine and pinned Timbre source are unchanged.
+
+Known limitations: This is an audio-routing experiment and a test of unprotected sound, **not** a DRM workaround or proof of Apple Music EQ access. The signed bundle identifier still requires MusicKit App Service registration by the signing developer; the unsigned build cannot provision that registration. Neither native music catalog playback nor Gecko audio output has yet been reverified on a device.
+
 ## Apple Music + Timbre (Gecko) 0.2.6 build 8 (native token error and audible Gecko diagnostics, 2026-11-07)
 
 - Prevented automatic native station catalog lookup failures from presenting a blocking MusicKit alert. The native view now keeps its controls available and shows a retryable inline error with the reported MusicKit token case. A catalog request failure is explicitly distinguished from an audio/DRM failure.
