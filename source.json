@@ -19,6 +19,16 @@
       "category": "music",
       "versions": [
         {
+          "version": "0.2.3",
+          "buildVersion": "5",
+          "date": "2026-11-07T17:03:31Z",
+          "localizedDescription": "Added native MusicKit mode with subscription and radio playback tests, native playback error reporting, packaged DRM module inventory, and in-app Gecko EME/Widevine/FairPlay probes. Paid-track EQ remains unsupported; native MusicKit access requires appropriate signing capabilities.",
+          "changelog": "Added native MusicKit mode with subscription and radio playback tests, native playback error reporting, packaged DRM module inventory, and in-app Gecko EME/Widevine/FairPlay probes. Paid-track EQ remains unsupported; native MusicKit access requires appropriate signing capabilities.",
+          "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.3-b5/Apple-Music-Timbre-Gecko-0.2.3-unsigned.ipa",
+          "size": 142582167,
+          "minOSVersion": "18.0"
+        },
+        {
           "version": "0.2.2",
           "buildVersion": "4",
           "date": "2026-11-07T16:25:04Z",
@@ -49,12 +59,12 @@
           "minOSVersion": "18.0"
         }
       ],
-      "version": "0.2.2",
-      "buildVersion": "4",
-      "versionDate": "2026-11-07T16:25:04Z",
-      "versionDescription": "Added a genuine iOS Safari WebExtension containing Timbre's EQ engine, presets, controls, and effects. Full Safari Apple Music DRM audio EQ remains unverified; Gecko currently receives previews.",
-      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.2-b4/Apple-Music-Timbre-Gecko-0.2.2-unsigned.ipa",
-      "size": 142516797,
+      "version": "0.2.3",
+      "buildVersion": "5",
+      "versionDate": "2026-11-07T17:03:31Z",
+      "versionDescription": "Added native MusicKit mode with subscription and radio playback tests, native playback error reporting, packaged DRM module inventory, and in-app Gecko EME/Widevine/FairPlay probes. Paid-track EQ remains unsupported; native MusicKit access requires appropriate signing capabilities.",
+      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.3-b5/Apple-Music-Timbre-Gecko-0.2.3-unsigned.ipa",
+      "size": 142582167,
       "minOSVersion": "18.0"
     },
     {
