@@ -3,16 +3,17 @@
   "targets": [
     {
       "name": "iOS app",
-      "evidence": [
-        {
-          "path": "AppleMusicTimbre/Sources/App.swift",
-          "contains": [
-            "Installed version",
-            "CFBundleShortVersionString",
-            "CFBundleVersion"
-          ]
-        }
-      ]
+      "evidence": [{
+        "path": "AppleMusicTimbre/Sources/App.swift",
+        "contains": ["Installed version", "CFBundleShortVersionString", "CFBundleVersion"]
+      }]
+    },
+    {
+      "name": "Timbre Radio (Gecko)",
+      "evidence": [{
+        "path": "AppleMusicGecko/Sources/TimbreRadioAppView.swift",
+        "contains": ["Installed version", "CFBundleShortVersionString", "CFBundleVersion"]
+      }]
     }
   ]
 }

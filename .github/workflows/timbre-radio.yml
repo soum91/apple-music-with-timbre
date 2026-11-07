@@ -1,0 +1,110 @@
+name: Build Timbre Radio (cached Gecko)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'AppleMusicGecko/**'
+      - 'version-ui-contract.json'
+      - '.github/workflows/timbre-radio.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: timbre-radio-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  ipa:
+    runs-on: macos-26
+    timeout-minutes: 120
+    env:
+      REYNARD_REF: 55eecc5b63114b0072bf14bd4c55acec01e3a40a
+      XCODE_VERSION: '26.5'
+      FIREFOX_IPA: https://github.com/soum91/firefox-gecko-ios/releases/download/native-gecko-159.0-build-65/Firefox-Gecko-Native-159.0-build-65.ipa
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect source contract
+        run: python3 scripts/check_version_ui.py
+      - name: Checkout pinned Gecko sources for header compatibility
+        uses: actions/checkout@v4
+        with:
+          repository: soum91/reynard-browser
+          ref: ${{ env.REYNARD_REF }}
+          path: reynard-source
+          persist-credentials: false
+      - name: Checkout engine cache scripts
+        uses: actions/checkout@v4
+        with:
+          repository: soum91/firefox-gecko-ios
+          ref: firefox-native-gecko
+          path: firefox-source
+          persist-credentials: false
+      - name: Select matching Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+      - name: Fetch verified Firefox Gecko runtime
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/firefox-package"
+          curl -fL --retry 4 --retry-all-errors -o "$RUNNER_TEMP/firefox-package/firefox.ipa" "$FIREFOX_IPA"
+          unzip -tq "$RUNNER_TEMP/firefox-package/firefox.ipa" >/dev/null
+          mkdir -p AppleMusicGecko/Dependencies
+          unzip -q "$RUNNER_TEMP/firefox-package/firefox.ipa" 'Payload/Firefox.app/Frameworks/GeckoView.framework/*' -d "$RUNNER_TEMP/firefox-package"
+          cp -R "$RUNNER_TEMP/firefox-package/Payload/Firefox.app/Frameworks/GeckoView.framework" AppleMusicGecko/Dependencies/
+          test -f AppleMusicGecko/Dependencies/GeckoView.framework/Modules/GeckoView.swiftmodule/arm64-apple-ios.swiftmodule
+      - name: Restore existing Gecko engine headers (never recompile)
+        run: |
+          set -euo pipefail
+          key="gecko-engine-v2-${REYNARD_REF}-xcode${XCODE_VERSION}"
+          content=$(bash firefox-source/.github/scripts/gecko-engine-key.sh reynard-source '--use-sccache --auto-clobber')
+          mkdir -p "$RUNNER_TEMP/gecko-engine"
+          GITHUB_REPOSITORY=soum91/firefox-gecko-ios \
+            bash firefox-source/.github/scripts/fetch-gecko-engine.sh "$key" "$REYNARD_REF" "$RUNNER_TEMP/gecko-engine" "$content"
+          archive="$RUNNER_TEMP/gecko-engine/gecko-engine-dist.tar.gz"
+          test -s "$archive" || { echo '::error::Compiled Gecko engine cache unavailable; refusing source rebuild'; exit 1; }
+          obj="$GITHUB_WORKSPACE/reynard-source/engine/firefox/obj-aarch64-apple-ios"
+          mkdir -p "$obj"
+          tar -xzf "$archive" -C "$obj"
+          test -d "$obj/dist/include"
+      - name: Build native-UI wrapper with cached Gecko
+        working-directory: AppleMusicGecko
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+          xcodegen generate
+          gecko_flags=$(bash "$GITHUB_WORKSPACE/firefox-source/.github/scripts/geckoview-client-swift-flags.sh" "$GITHUB_WORKSPACE/reynard-source")
+          xcodebuild -project TimbreRadio.xcodeproj -scheme TimbreRadio -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/timbre-radio" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            OTHER_SWIFT_FLAGS='$(inherited)'" $gecko_flags" \
+            build | tee "$RUNNER_TEMP/timbre-radio-build.log"
+      - name: Package Gecko with native UI and built-in Timbre
+        run: |
+          set -euo pipefail
+          python3 AppleMusicGecko/scripts/package_gecko.py \
+            --firefox-ipa "$RUNNER_TEMP/firefox-package/firefox.ipa" \
+            --app "$RUNNER_TEMP/timbre-radio/Build/Products/Release-iphoneos/TimbreRadio.app" \
+            --output "$RUNNER_TEMP/Timbre-Radio-0.1.0-unsigned.ipa"
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Timbre-Radio-0.1.0-unsigned
+          path: ${{ runner.temp }}/Timbre-Radio-0.1.0-unsigned.ipa
+          if-no-files-found: error
+      - name: Publish test prerelease with factual notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create timbre-radio-v0.1.0-b1 "$RUNNER_TEMP/Timbre-Radio-0.1.0-unsigned.ipa" \
+            --prerelease --title 'Timbre Radio 0.1.0 (experimental)' \
+            --notes 'First separate native-UI Apple Music Radio shell. Reuses Firefox Gecko 159.0 build 65 runtime without recompiling the engine; adds first-class Radio navigation, a bundled Timbre add-on popup, persistent Gecko profile, native WebKit comparison, and installed version display. Known limitation: free live Radio playback and Timbre DSP on protected Radio have not been verified on iPhone. The IPA is unsigned and requires signing with the same team for the app and its helper.'
+      - name: Upload compiler log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: timbre-radio-build-log
+          path: ${{ runner.temp }}/timbre-radio-build.log
+          if-no-files-found: ignore
