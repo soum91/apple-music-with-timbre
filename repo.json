@@ -19,6 +19,16 @@
       "category": "entertainment",
       "versions": [
         {
+          "version": "0.2.8",
+          "buildVersion": "10",
+          "date": "2026-11-07T20:55:36Z",
+          "localizedDescription": "Reassert Gecko session active/focused state after the browser UIView attaches and expose a Gecko surface lifecycle readout. This tests a possible cause of silent Gecko media; audible playback remains unverified.",
+          "changelog": "Reassert Gecko session active/focused state after the browser UIView attaches and expose a Gecko surface lifecycle readout. This tests a possible cause of silent Gecko media; audible playback remains unverified.",
+          "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.8-b10/Apple-Music-Timbre-Gecko-0.2.8-unsigned.ipa",
+          "size": 142637555,
+          "minOSVersion": "18.0"
+        },
+        {
           "version": "0.2.7",
           "buildVersion": "9",
           "date": "2026-11-07T20:13:42Z",
@@ -99,12 +109,12 @@
           "minOSVersion": "18.0"
         }
       ],
-      "version": "0.2.7",
-      "buildVersion": "9",
-      "versionDate": "2026-11-07T20:13:42Z",
-      "versionDescription": "Added an independent native two-second audio test with physical-audibility reporting. Explicitly activates iOS playback session before Gecko playback and adds route and volume diagnostics. MusicKit signing and protected audio remain unresolved.",
-      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.7-b9/Apple-Music-Timbre-Gecko-0.2.7-unsigned.ipa",
-      "size": 142635373,
+      "version": "0.2.8",
+      "buildVersion": "10",
+      "versionDate": "2026-11-07T20:55:36Z",
+      "versionDescription": "Reassert Gecko session active/focused state after the browser UIView attaches and expose a Gecko surface lifecycle readout. This tests a possible cause of silent Gecko media; audible playback remains unverified.",
+      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.8-b10/Apple-Music-Timbre-Gecko-0.2.8-unsigned.ipa",
+      "size": 142637555,
       "minOSVersion": "18.0"
     },
     {
