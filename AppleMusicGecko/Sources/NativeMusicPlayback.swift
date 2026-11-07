@@ -15,6 +15,84 @@ final class NativeMusicPlaybackState: ObservableObject {
     @Published var errorMessage: String?
     @Published var busy = false
     @Published var currentTitle = "Nothing playing"
+    @Published var diagnosticEvents: [String] = []
+    @Published var diagnosing = false
+
+    /// No Apple ID, developer tokens, cookies, or request headers in the report.
+    var diagnosticReport: String {
+        let info = Bundle.main.infoDictionary ?? [:]
+        let version = info["CFBundleShortVersionString"] as? String ?? "unknown"
+        let build = info["CFBundleVersion"] as? String ?? "unknown"
+        let audio = AVAudioSession.sharedInstance()
+        let route = audio.currentRoute.outputs.map { $0.portType.rawValue }.joined(separator: ", ")
+        return ([
+            "Apple Music + Timbre | debug report",
+            "Version: \(version) (\(build))",
+            "iOS: \(UIDevice.current.systemVersion)",
+            "MusicKit authorization: \(authorization)",
+            "Subscription check: \(subscription)",
+            "MusicKit status: \(status)",
+            "Tracks in search: \(songs.count)",
+            "Stations discovered: \(stations.count)",
+            "Player status: \(player.state.playbackStatus)",
+            "Audio route: \(route.isEmpty ? "none" : route)",
+            "Output sample rate: \(Int(audio.sampleRate)) Hz",
+            "Last error: \(errorMessage ?? "none")",
+            "",
+            "Diagnostic events (oldest first):"
+        ] + (diagnosticEvents.isEmpty ? ["Not run yet. Tap Run diagnostics."] : diagnosticEvents))
+            .joined(separator: "\n")
+    }
+
+    private func describe(_ error: Error) -> String {
+        let primary = error as NSError
+        let underlying = primary.userInfo[NSUnderlyingErrorKey] as? NSError
+        var result = "\(primary.localizedDescription) [domain=\(primary.domain), code=\(primary.code)]"
+        if let underlying {
+            result += " [underlying domain=\(underlying.domain), code=\(underlying.code), description=\(underlying.localizedDescription)]"
+        }
+        return result
+    }
+
+    private func log(_ event: String) {
+        diagnosticEvents.append("\(Date().formatted(.iso8601)) \(event)")
+        if diagnosticEvents.count > 80 {
+            diagnosticEvents.removeFirst(diagnosticEvents.count - 80)
+        }
+    }
+
+    /// Tests real MusicKit API requests without starting or altering playback.
+    func runDiagnostics() async {
+        guard !diagnosing else { return }
+        diagnosing = true
+        diagnosticEvents.removeAll()
+        defer { diagnosing = false }
+        log("START: Native MusicKit diagnostics (no playback or protected-PCM interception)")
+        authorization = MusicAuthorization.currentStatus
+        log("Authorization: \(authorization)")
+        guard authorization == .authorized else {
+            log("SKIP: Catalog calls require Apple Music authorization. Use Connect Apple Music first.")
+            return
+        }
+        do {
+            let available = try await MusicSubscription.current.canPlayCatalogContent
+            subscription = available ? "Catalog subscription available" : "Catalog subscription unavailable"
+            log("PASS: MusicSubscription.current.canPlayCatalogContent = \(available)")
+        } catch {
+            subscription = "Subscription check failed"
+            log("FAIL: Subscription request: \(describe(error))")
+        }
+        do {
+            var request = MusicCatalogSearchRequest(term: "Apple Music", types: [Song.self])
+            request.limit = 1
+            let response = try await request.response()
+            log("PASS: Song catalog HTTP/API request succeeded; returned \(response.songs.count) results")
+        } catch {
+            log("FAIL: Song catalog API request: \(describe(error))")
+        }
+        await loadStations(force: true)
+        log("FINISH: See full report for the error domain/code and route. Successful account authorization alone does not prove catalog access.")
+    }
 
     let player = ApplicationMusicPlayer.shared
     private var hasLoadedStations = false
@@ -38,21 +116,31 @@ final class NativeMusicPlaybackState: ObservableObject {
                 "Try free radio or your purchased music. Catalog tracks may require a subscription."
         } catch {
             subscription = "Status request failed"
-            errorMessage = "MusicKit subscription check: \(error.localizedDescription)"
+            errorMessage = "MusicKit subscription check: \(describe(error))"
+            log("FAIL: Music subscription refresh: \(describe(error))")
         }
         await loadStations()
     }
 
-    func loadStations() async {
-        guard authorization == .authorized, !hasLoadedStations else { return }
+    func loadStations(force: Bool = false) async {
+        guard authorization == .authorized, (!hasLoadedStations || force) else { return }
+        log("START: Station catalog search, term=Apple Music, limit=25") 
         do {
             var request = MusicCatalogSearchRequest(term: "Apple Music", types: [Station.self])
             request.limit = 25
             stations = Array(try await request.response().stations)
                 .sorted { $0.isLive && !$1.isLive }
             hasLoadedStations = true
+            log("PASS: Station search returned \(stations.count) stations")
+            if stations.isEmpty {
+                status = "Station search returned zero results. Try searching a specific station name."
+            }
         } catch {
-            errorMessage = "Station lookup: \(error.localizedDescription)"
+            hasLoadedStations = false
+            let details = describe(error)
+            errorMessage = "Station lookup: \(details)"
+            status = "Station catalog request failed. Open Diagnostics for a copyable report."
+            log("FAIL: Station catalog request: \(details)")
         }
     }
 
@@ -72,7 +160,8 @@ final class NativeMusicPlaybackState: ObservableObject {
             songs = Array(response.songs)
             stations = Array(response.stations)
         } catch {
-            errorMessage = "MusicKit search: \(error.localizedDescription)"
+            errorMessage = "MusicKit search: \(describe(error))"
+            log("FAIL: MusicKit search: \(describe(error))")
         }
     }
 
@@ -82,7 +171,10 @@ final class NativeMusicPlaybackState: ObservableObject {
             try await player.play()
             currentTitle = song.title
             status = "MusicKit is playing \(song.title). Timbre cannot read MusicKit's protected PCM."
-        } catch { errorMessage = "Native track playback: \(error.localizedDescription)" }
+        } catch {
+            errorMessage = "Native track playback: \(describe(error))"
+            log("FAIL: Track playback: \(describe(error))")
+        }
     }
 
     func play(_ station: Station) async {
@@ -91,7 +183,10 @@ final class NativeMusicPlaybackState: ObservableObject {
             try await player.play()
             currentTitle = station.name
             status = "MusicKit station \(station.name) selected. Timbre DSP is unavailable on this stream."
-        } catch { errorMessage = "Native radio playback: \(error.localizedDescription)" }
+        } catch {
+            errorMessage = "Native radio playback: \(describe(error))"
+            log("FAIL: Radio playback: \(describe(error))")
+        }
     }
 
     func togglePlay() async {
@@ -99,7 +194,10 @@ final class NativeMusicPlaybackState: ObservableObject {
             player.pause()
         } else {
             do { try await player.play() }
-            catch { errorMessage = "Native playback: \(error.localizedDescription)" }
+            catch {
+                errorMessage = "Native playback: \(describe(error))"
+                log("FAIL: Resume playback: \(describe(error))")
+            }
         }
     }
 }
@@ -171,6 +269,17 @@ struct NativeMusicPlaybackView: View {
                     Text(music.status).font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("Playback diagnostics") {
+                    Button(music.diagnosing ? "Running diagnostics…" : "Run MusicKit diagnostics") {
+                        Task { await music.runDiagnostics() }
+                    }.disabled(music.diagnosing)
+                    if music.diagnosing { ProgressView("Checking Apple Music APIs") }
+                    Button("Copy debug report") {
+                        UIPasteboard.general.string = music.diagnosticReport
+                    }
+                    ShareLink("Share debug report", item: music.diagnosticReport)
+                    Text(music.diagnosticReport)
+                        .font(.system(.caption2, design: .monospaced))
+                        .textSelection(.enabled)
                     let session = AVAudioSession.sharedInstance()
                     LabeledContent("Audio route", value: session.currentRoute.outputs.first?.portType.rawValue ?? "Unknown")
                     LabeledContent("Audio session", value: "\(Int(session.sampleRate)) Hz")
