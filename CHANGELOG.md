@@ -1,5 +1,13 @@
 # Changelog
 
+## Apple Music + Timbre (Gecko) 0.2.8 build 10 (Gecko view activation experiment, 2026-11-07)
+
+- After attaching `GeckoSession` to the SwiftUI-hosted `GeckoView`, reasserts tab activity and focus on the next main UI cycle. This follows the native Firefox Gecko tab lifecycle more closely and tests whether missing surface activation causes the reported silent Web Audio and WAV playback.
+- Added a copyable Gecko rendering-surface status showing UIKit window attachment, first-responder result, session-open state and requested active/focused state. The working independent iOS native sound check is left intact.
+- Updated host and nested Safari extension to **0.2.8 (build 10)**, reusing the cached Gecko engine and previously pinned Timbre extension source.
+
+Known limitations: This is an unverified device-level audio activation experiment. The user has confirmed native audio output through iPhone speaker, while Gecko Web Audio and WAV remain silent in build 9. This change does not provide a CDM, decrypt protected streams, or fix the separate MusicKit developer-token requirement.
+
 ## Apple Music + Timbre (Gecko) 0.2.7 build 9 (isolated sound output diagnostics, 2026-11-07)
 
 - Added an independent, generated two-second **AVAudioPlayer** tone in Debug Report. It bypasses Gecko, MusicKit, network access, and protected content. A physical-listening confirmation marks it as heard or silent; the outcome is included in the copyable report and is never inferred from `play()` alone.

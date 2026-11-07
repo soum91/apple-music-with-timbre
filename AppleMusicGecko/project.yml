@@ -6,8 +6,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: '5.0'
-    MARKETING_VERSION: '0.2.7'
-    CURRENT_PROJECT_VERSION: '9'
+    MARKETING_VERSION: '0.2.8'
+    CURRENT_PROJECT_VERSION: '10'
     FRAMEWORK_SEARCH_PATHS: '$(inherited) $(PROJECT_DIR)/Dependencies'
     OTHER_LDFLAGS: '$(inherited) -framework GeckoView'
 targets:
@@ -24,8 +24,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.soum91.applemusictimbre.gecko
-        MARKETING_VERSION: '0.2.7'
-        CURRENT_PROJECT_VERSION: '9'
+        MARKETING_VERSION: '0.2.8'
+        CURRENT_PROJECT_VERSION: '10'
         SWIFT_OBJC_BRIDGING_HEADER: '$(PROJECT_DIR)/Sources/NativeAudioProbe.h'
         TARGETED_DEVICE_FAMILY: '1,2'
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
@@ -38,8 +38,8 @@ targets:
       path: Info.plist
       properties:
         CFBundleDisplayName: Apple Music + Timbre
-        CFBundleShortVersionString: '0.2.7'
-        CFBundleVersion: '9'
+        CFBundleShortVersionString: '0.2.8'
+        CFBundleVersion: '10'
         ITSAppUsesNonExemptEncryption: false
         NSAppleMusicUsageDescription: "Play your Apple Music subscription tracks and radio through Apple's native MusicKit player."
         UIBackgroundModes: [audio]
@@ -63,14 +63,14 @@ targets:
         SKIP_INSTALL: YES
         APPLICATION_EXTENSION_API_ONLY: YES
         OTHER_LDFLAGS: ''
-        MARKETING_VERSION: '0.2.7'
-        CURRENT_PROJECT_VERSION: '9'
+        MARKETING_VERSION: '0.2.8'
+        CURRENT_PROJECT_VERSION: '10'
     info:
       path: SafariExtension/Info.plist
       properties:
         CFBundleDisplayName: Timbre EQ for Safari
-        CFBundleShortVersionString: '0.2.7'
-        CFBundleVersion: '9'
+        CFBundleShortVersionString: '0.2.8'
+        CFBundleVersion: '10'
         NSExtension:
           NSExtensionPointIdentifier: com.apple.Safari.web-extension
           NSExtensionPrincipalClass: '$(PRODUCT_MODULE_NAME).SafariWebExtensionHandler'

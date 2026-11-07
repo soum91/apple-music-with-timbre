@@ -57,6 +57,7 @@ final class GeckoMusicState: ObservableObject {
     @Published var errorMessage: String?
     @Published var eqPopupURL: String?
     @Published var outputSession = "Not configured"
+    @Published var surfaceStatus = "Gecko view not attached"
     private(set) var session: GeckoSession
     private var started = false
 
@@ -120,6 +121,21 @@ final class GeckoMusicState: ObservableObject {
         session.setFocused(visible)
     }
 
+    /// SwiftUI can create the UIView after the GeckoSession was opened and
+    /// marked active. Reassert focus only once GeckoView owns the session and
+    /// UIKit has had a chance to attach it to its window, as Firefox does.
+    func surfaceDidAttach(windowAttached: Bool, firstResponder: Bool) {
+        guard started else {
+            surfaceStatus = "Gecko view attached before session startup"
+            return
+        }
+        preparePlaybackSession()
+        session.setActive(true)
+        session.setAddonTabActive(true)
+        session.setFocused(true)
+        surfaceStatus = "view attached, window=\(windowAttached), firstResponder=\(firstResponder), open=\(session.isOpen()), active/focused requested"
+    }
+
     func preparePlaybackSession() {
         let audio = AVAudioSession.sharedInstance()
         do {
@@ -177,6 +193,13 @@ struct GeckoViewSurface: UIViewRepresentable {
         let view = GeckoView(frame: .zero)
         view.backgroundColor = .black
         view.session = state.session
+        // Run on the next UI cycle, after the hosting view can enter a UIWindow.
+        // This matters for the audio-output test as well as normal web audio.
+        DispatchQueue.main.async { [weak view] in
+            guard let view, view.session === state.session else { return }
+            let responder = view.becomeFirstResponder()
+            state.surfaceDidAttach(windowAttached: view.window != nil, firstResponder: responder)
+        }
         return view
     }
     func updateUIView(_ view: GeckoView, context: Context) {}
@@ -223,6 +246,7 @@ struct AppleMusicTimbreGeckoView: View {
             "Gecko browser status: \(gecko.status)",
             "Gecko runtime: \(GeckoRuntime.version)",
             "Gecko playback audio session: \(gecko.outputSession)",
+            "Gecko rendering surface: \(gecko.surfaceStatus)",
             inventory,
             "Gecko EME results: The embedded HTML test displays these in Gecko, but its JavaScript output is not yet transmitted to the native report.",
             "Important: a native render callback observation is not proof that the MusicKit stream can be EQ processed. No protected audio is decrypted or exported."
