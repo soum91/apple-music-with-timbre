@@ -19,6 +19,16 @@
       "category": "entertainment",
       "versions": [
         {
+          "version": "0.2.7",
+          "buildVersion": "9",
+          "date": "2026-11-07T20:13:42Z",
+          "localizedDescription": "Added an independent native two-second audio test with physical-audibility reporting. Explicitly activates iOS playback session before Gecko playback and adds route and volume diagnostics. MusicKit signing and protected audio remain unresolved.",
+          "changelog": "Added an independent native two-second audio test with physical-audibility reporting. Explicitly activates iOS playback session before Gecko playback and adds route and volume diagnostics. MusicKit signing and protected audio remain unresolved.",
+          "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.7-b9/Apple-Music-Timbre-Gecko-0.2.7-unsigned.ipa",
+          "size": 142635373,
+          "minOSVersion": "18.0"
+        },
+        {
           "version": "0.2.6",
           "buildVersion": "8",
           "date": "2026-11-07T19:26:52Z",
@@ -89,12 +99,12 @@
           "minOSVersion": "18.0"
         }
       ],
-      "version": "0.2.6",
-      "buildVersion": "8",
-      "versionDate": "2026-11-07T19:26:52Z",
-      "versionDescription": "Avoid blocking native station-error alerts; show sanitized MusicKit token-case and installed bundle ID. Added an audible local Web Audio/WAV test inside Gecko. No protected audio access or EQ was added.",
-      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.6-b8/Apple-Music-Timbre-Gecko-0.2.6-unsigned.ipa",
-      "size": 142625409,
+      "version": "0.2.7",
+      "buildVersion": "9",
+      "versionDate": "2026-11-07T20:13:42Z",
+      "versionDescription": "Added an independent native two-second audio test with physical-audibility reporting. Explicitly activates iOS playback session before Gecko playback and adds route and volume diagnostics. MusicKit signing and protected audio remain unresolved.",
+      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.7-b9/Apple-Music-Timbre-Gecko-0.2.7-unsigned.ipa",
+      "size": 142635373,
       "minOSVersion": "18.0"
     },
     {
