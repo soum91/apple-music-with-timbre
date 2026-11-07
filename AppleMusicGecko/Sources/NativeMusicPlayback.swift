@@ -90,7 +90,7 @@ final class NativeMusicPlaybackState: ObservableObject {
         } catch {
             log("FAIL: Song catalog API request: \(describe(error))")
         }
-        await loadStations(force: true)
+        await loadStations(force: true, reportOnly: true)
         log("FINISH: See full report for the error domain/code and route. Successful account authorization alone does not prove catalog access.")
     }
 
@@ -122,7 +122,7 @@ final class NativeMusicPlaybackState: ObservableObject {
         await loadStations()
     }
 
-    func loadStations(force: Bool = false) async {
+    func loadStations(force: Bool = false, reportOnly: Bool = false) async {
         guard authorization == .authorized, (!hasLoadedStations || force) else { return }
         log("START: Station catalog search, term=Apple Music, limit=25") 
         do {
@@ -138,7 +138,7 @@ final class NativeMusicPlaybackState: ObservableObject {
         } catch {
             hasLoadedStations = false
             let details = describe(error)
-            errorMessage = "Station lookup: \(details)"
+            if !reportOnly { errorMessage = "Station lookup: \(details)" }
             status = "Station catalog request failed. Open Diagnostics for a copyable report."
             log("FAIL: Station catalog request: \(details)")
         }
