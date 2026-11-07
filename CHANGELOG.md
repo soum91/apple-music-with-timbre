@@ -1,5 +1,15 @@
 # Changelog
 
+## [apple-music-timbre-gecko-v0.2.3-b5] - 2026-11-07
+
+## Verified changes since apple-music-timbre-gecko-v0.2.2-b4
+
+- fix(build): quote MusicKit permission purpose text for XcodeGen ([`3d344146`](https://github.com/soum91/apple-music-with-timbre/commit/3d344146675a805d2041574583ee5b2cb9af27c4); `AppleMusicGecko/project.yml`)
+- feat: add native MusicKit playback and embedded Gecko DRM diagnostics ([`9a47da0a`](https://github.com/soum91/apple-music-with-timbre/commit/9a47da0abaea63075b0f81341d7d442df83dc013); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/README.md`, `AppleMusicGecko/Resources/drm-diagnostic.html`, and 5 more)
+- Publish public FlareStore repo for Apple Music + Timbre releases ([`dd36a6b2`](https://github.com/soum91/apple-music-with-timbre/commit/dd36a6b2ba018950a2e18c33e68a7a3db05e68aa); `repo.json`, `source.json`)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.2-b4...apple-music-timbre-gecko-v0.2.3-b5)
+
 ## [apple-music-timbre-gecko-v0.2.2-b4] - 2026-11-07
 
 ## Verified changes since apple-music-timbre-gecko-v0.2.1-b3
