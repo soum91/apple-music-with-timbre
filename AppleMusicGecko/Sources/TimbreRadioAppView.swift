@@ -199,7 +199,7 @@ struct AppleMusicTimbreGeckoView: View {
             "Gecko runtime: \(GeckoRuntime.version)",
             inventory,
             "Gecko EME results: The embedded HTML test displays these in Gecko, but its JavaScript output is not yet transmitted to the native report.",
-            "Important: MusicKit audio is protected and cannot be tapped by Timbre."
+            "Important: a native render callback observation is not proof that the MusicKit stream can be EQ processed. No protected audio is decrypted or exported."
         ].joined(separator: "\n")
     }
     @State private var showEQ = false
@@ -271,6 +271,7 @@ struct AppleMusicTimbreGeckoView: View {
         .onAppear { gecko.start() }
         .onChange(of: playerMode) { _, mode in
             gecko.setVisible(mode == .gecko)
+            TimbreNativeAudioProbe.setNativePlaybackActive(mode == .native)
             if mode == .native { Task { await native.refresh() } }
         }
         .tint(indigo)
@@ -287,6 +288,11 @@ struct AppleMusicTimbreGeckoView: View {
             NavigationStack {
                 Form {
                     Section("Run actual MusicKit tests") {
+                        Button("Inspect native audio path now") {
+                            native.inspectAudioPath()
+                        }
+                        Text("While Native MusicKit plays a track or station, let it run briefly, then inspect and copy the report. App-local callback counts are diagnostic only. This test does not modify audio.")
+                            .font(.footnote).foregroundStyle(.secondary)
                         Button(native.diagnosing ? "Running tests…" : "Run diagnostics") {
                             Task { await native.runDiagnostics() }
                         }
@@ -336,7 +342,7 @@ struct AppleMusicTimbreGeckoView: View {
                     Section("Playback") {
                         Text("Safari plays full subscription tracks on the test iPhone. Our custom Gecko build currently receives Apple Music previews of approximately 90 seconds, even with an active subscription.")
                         Text("Timbre EQ affects Gecko's preview audio, but full protected-track processing is not confirmed. Radio also remains unavailable in Gecko.")
-                        Text("Choose Native MusicKit using the engine menu to test authenticated subscription tracks and radio. Neither MusicKit nor WebKit exposes protected PCM to Timbre. Native playback is not a DRM bypass.")
+                        Text("Choose Native MusicKit using the engine menu to test authenticated subscription tracks and radio. Apple does not provide a public MusicKit PCM tap; this release experimentally observes app-local legacy render callbacks, without decoding or modifying protected audio.")
                     }
                     Section("Debug report") {
                         Button("Open diagnostics and export report") {
@@ -372,7 +378,7 @@ struct AppleMusicTimbreGeckoView: View {
                     Section("Native pipeline") {
                         LabeledContent("Music access", value: native.authorization == .authorized ? "Authorized" : "Not authorized")
                         LabeledContent("Catalog subscription", value: native.subscription)
-                        Text("Apple's ApplicationMusicPlayer runs independently of the browser. Successful playback proves native access, not custom DSP access. No audio taps into protected MusicKit playback are used.")
+                        Text("Apple's ApplicationMusicPlayer runs independently of the browser. The native callback probe observes app-local audio registrations and callback counts without reading samples. It cannot inspect Apple's system-owned playback pipeline and does not apply EQ.")
                         Button("Open native playback") { playerMode = .native; showAbout = false }
                     }
                     Section("Safari Extension") {

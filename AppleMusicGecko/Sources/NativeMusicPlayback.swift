@@ -2,8 +2,9 @@ import AVFoundation
 import MusicKit
 import SwiftUI
 
-/// Native MusicKit is a playback alternative to Gecko previews. MusicKit owns
-/// the protected audio path; it does not provide decoded PCM to Timbre.
+/// Native MusicKit is a playback alternative to Gecko previews. MusicKit does
+/// not expose decoded PCM through its public playback API; the optional native
+/// probe only checks for app-local legacy render callbacks.
 @MainActor
 final class NativeMusicPlaybackState: ObservableObject {
     @Published var authorization = MusicAuthorization.currentStatus
@@ -17,6 +18,16 @@ final class NativeMusicPlaybackState: ObservableObject {
     @Published var currentTitle = "Nothing playing"
     @Published var diagnosticEvents: [String] = []
     @Published var diagnosing = false
+    @Published var audioProbeUpdated = "Not yet checked"
+
+    init() {
+        TimbreNativeAudioProbe.install()
+    }
+
+    func inspectAudioPath() {
+        audioProbeUpdated = Date().formatted(.iso8601)
+        log("AUDIO PATH: Snapshot captured. Render counts in the report indicate app-local callbacks only, not MusicKit PCM access.")
+    }
 
     /// No Apple ID, developer tokens, cookies, or request headers in the report.
     var diagnosticReport: String {
@@ -38,6 +49,9 @@ final class NativeMusicPlaybackState: ObservableObject {
             "Audio route: \(route.isEmpty ? "none" : route)",
             "Output sample rate: \(Int(audio.sampleRate)) Hz",
             "Last error: \(errorMessage ?? "none")",
+            "Audio probe inspected: \(audioProbeUpdated)",
+            "",
+            TimbreNativeAudioProbe.snapshot(),
             "",
             "Diagnostic events (oldest first):"
         ] + (diagnosticEvents.isEmpty ? ["Not run yet. Tap Run diagnostics."] : diagnosticEvents))
@@ -67,7 +81,7 @@ final class NativeMusicPlaybackState: ObservableObject {
         diagnosing = true
         diagnosticEvents.removeAll()
         defer { diagnosing = false }
-        log("START: Native MusicKit diagnostics (no playback or protected-PCM interception)")
+        log("START: Native MusicKit diagnostics (API calls and passive in-process callback counters; no audio data capture)")
         authorization = MusicAuthorization.currentStatus
         log("Authorization: \(authorization)")
         guard authorization == .authorized else {
@@ -167,10 +181,12 @@ final class NativeMusicPlaybackState: ObservableObject {
 
     func play(_ song: Song) async {
         do {
+            TimbreNativeAudioProbe.setNativePlaybackActive(true)
             player.queue = ApplicationMusicPlayer.Queue(for: [song])
             try await player.play()
             currentTitle = song.title
-            status = "MusicKit is playing \(song.title). Timbre cannot read MusicKit's protected PCM."
+            status = "MusicKit is playing \(song.title). Native PCM access remains unverified; inspect audio path after playback starts."
+            inspectAudioPath()
         } catch {
             errorMessage = "Native track playback: \(describe(error))"
             log("FAIL: Track playback: \(describe(error))")
@@ -179,10 +195,12 @@ final class NativeMusicPlaybackState: ObservableObject {
 
     func play(_ station: Station) async {
         do {
+            TimbreNativeAudioProbe.setNativePlaybackActive(true)
             player.queue = ApplicationMusicPlayer.Queue(for: [station])
             try await player.play()
             currentTitle = station.name
-            status = "MusicKit station \(station.name) selected. Timbre DSP is unavailable on this stream."
+            status = "MusicKit station \(station.name) selected. Native PCM access remains unverified."
+            inspectAudioPath()
         } catch {
             errorMessage = "Native radio playback: \(describe(error))"
             log("FAIL: Radio playback: \(describe(error))")
@@ -218,7 +236,7 @@ struct NativeMusicPlaybackView: View {
                     } else {
                         Button("Refresh account and stations") { Task { await music.refresh() } }
                     }
-                    Text("Apple's native player supports subscription playback when your account and signing capabilities permit. It does not expose protected PCM to the Timbre EQ.")
+                    Text("Apple's public MusicKit player API does not supply PCM to Timbre. The experimental audio-path probe below looks only for app-local legacy callbacks; it does not apply EQ.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("Search") {
@@ -269,6 +287,11 @@ struct NativeMusicPlaybackView: View {
                     Text(music.status).font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("Playback diagnostics") {
+                    Button("Inspect native audio path now") {
+                        music.inspectAudioPath()
+                    }
+                    Text("Start a full track or radio station in Native MusicKit, let it play for a few seconds, then tap Inspect. The readout shows any app-local legacy audio callback activity without reading audio data.")
+                        .font(.footnote).foregroundStyle(.secondary)
                     Button(music.diagnosing ? "Running diagnostics…" : "Run MusicKit diagnostics") {
                         Task { await music.runDiagnostics() }
                     }.disabled(music.diagnosing)

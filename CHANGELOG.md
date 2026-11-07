@@ -1,5 +1,13 @@
 # Changelog
 
+## Apple Music + Timbre (Gecko) 0.2.5 build 7 (native callback feasibility probe, 2026-11-07)
+
+- Added an observation-only native `AUGraphSetNodeInputCallback`/`AudioUnitSetProperty` callback probe, adapted from the architecture proven in the separate Amazon Music + Timbre project. The code instruments imports in our own application images, excludes the Gecko runtime and Apple's system frameworks, and counts registrations, render calls, non-silent frames, and nonempty buffer pointers. It does not inspect, modify, decrypt, save, or transmit samples.
+- Added **Inspect native audio path now** to the Native MusicKit page and the copyable Debug Report. The report distinguishes app-local audio callback observations from actual MusicKit PCM access and includes stream format and observer coverage.
+- Armed the probe when selecting Native MusicKit and updated on-screen notices to make the experimental status explicit. Updated the app and Safari extension to **0.2.5 (build 7)**. Vendored the BSD-licensed fishhook support files already used in the Amazon experiment; the Gecko engine cache is unchanged.
+
+Known limitations: Apple Music's `ApplicationMusicPlayer` may render outside app-local callback imports. A zero count is not a proof that no system PCM exists; a nonzero count alone cannot attribute samples to Apple Music or demonstrate EQ. **No native MusicKit DSP or FairPlay bypass is provided**, and neither radio nor full-track playback has been newly verified on a physical device. This experiment may not identify the playback path at all. The unsigned IPA and nested Safari extension still require appropriate signing and MusicKit entitlements.
+
 ## Apple Music + Timbre (Gecko) 0.2.4 build 6 (diagnostics, 2026-11-07)
 
 - Added a dedicated in-app Debug report screen, accessible from the top toolbar and About, with **Run diagnostics**, **Copy full debug report**, and the native iOS Share sheet. The report includes the installed package version/build, iOS version, Gecko runtime, native authorization/subscription states, output route, and recent MusicKit outcomes. No Apple ID, authentication token, cookie or HTTP header is exported.
