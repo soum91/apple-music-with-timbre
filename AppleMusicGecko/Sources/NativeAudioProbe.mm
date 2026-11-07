@@ -8,6 +8,7 @@
 
 #include <atomic>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 
 // This is a deliberately passive counterpart to the Amazon Music + Timbre
@@ -94,7 +95,8 @@ static void readFormat(AudioUnit unit, AudioUnitScope scope, AudioUnitElement el
 static OSStatus observeGraphRegistration(AUGraph graph, AUNode node, UInt32 bus,
                                           const AURenderCallbackStruct *callback) {
     if (!originalGraphCallback) return kAudio_ParamError;
-    if (!callback || !callback->inputProc || callback->inputProc == observeRender) {
+    if (!callback || !callback->inputProc ||
+        reinterpret_cast<uintptr_t>(callback->inputProc) == reinterpret_cast<uintptr_t>(observeRender)) {
         return originalGraphCallback(graph, node, bus, callback);
     }
     CallbackSlot *slot = allocateSlot(callback);
@@ -119,7 +121,8 @@ static OSStatus observeUnitRegistration(AudioUnit unit, AudioUnitPropertyID prop
         return originalUnitProperty(unit, property, scope, element, data, size);
     }
     auto *callback = static_cast<const AURenderCallbackStruct *>(data);
-    if (!callback->inputProc || callback->inputProc == observeRender) {
+    if (!callback->inputProc ||
+        reinterpret_cast<uintptr_t>(callback->inputProc) == reinterpret_cast<uintptr_t>(observeRender)) {
         return originalUnitProperty(unit, property, scope, element, data, size);
     }
     CallbackSlot *slot = allocateSlot(callback);
