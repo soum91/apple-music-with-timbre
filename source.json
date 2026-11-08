@@ -19,6 +19,16 @@
       "category": "entertainment",
       "versions": [
         {
+          "version": "0.2.9",
+          "buildVersion": "11",
+          "date": "2026-11-08T00:11:48Z",
+          "localizedDescription": "Rolled back build 10 Gecko view focus/activation behavior after a reported regression; returns to build 9 Gecko lifecycle. Audio output and protected playback remain unverified.",
+          "changelog": "Rolled back build 10 Gecko view focus/activation behavior after a reported regression; returns to build 9 Gecko lifecycle. Audio output and protected playback remain unverified.",
+          "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.9-b11/Apple-Music-Timbre-Gecko-0.2.9-unsigned.ipa",
+          "size": 142635371,
+          "minOSVersion": "18.0"
+        },
+        {
           "version": "0.2.8",
           "buildVersion": "10",
           "date": "2026-11-07T20:55:36Z",
@@ -109,12 +119,12 @@
           "minOSVersion": "18.0"
         }
       ],
-      "version": "0.2.8",
-      "buildVersion": "10",
-      "versionDate": "2026-11-07T20:55:36Z",
-      "versionDescription": "Reassert Gecko session active/focused state after the browser UIView attaches and expose a Gecko surface lifecycle readout. This tests a possible cause of silent Gecko media; audible playback remains unverified.",
-      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.8-b10/Apple-Music-Timbre-Gecko-0.2.8-unsigned.ipa",
-      "size": 142637555,
+      "version": "0.2.9",
+      "buildVersion": "11",
+      "versionDate": "2026-11-08T00:11:48Z",
+      "versionDescription": "Rolled back build 10 Gecko view focus/activation behavior after a reported regression; returns to build 9 Gecko lifecycle. Audio output and protected playback remain unverified.",
+      "downloadURL": "https://github.com/soum91/apple-music-with-timbre/releases/download/apple-music-timbre-gecko-v0.2.9-b11/Apple-Music-Timbre-Gecko-0.2.9-unsigned.ipa",
+      "size": 142635371,
       "minOSVersion": "18.0"
     },
     {
