@@ -1,5 +1,14 @@
 # Changelog
 
+## [apple-music-timbre-gecko-v0.2.8-b10] - 2026-11-07
+
+## Verified changes since apple-music-timbre-gecko-v0.2.7-b9
+
+- fix(gecko): reassert media focus after GeckoView attaches in SwiftUI ([`28360da1`](https://github.com/soum91/apple-music-with-timbre/commit/28360da1c2376aefe22319fc7812450f7f28821a); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, `AppleMusicGecko/project.yml`)
+- catalog: publish Apple Music + Timbre Gecko 0.2.7 build 9 ([`c7e8d325`](https://github.com/soum91/apple-music-with-timbre/commit/c7e8d32581f7c95f78d95a646016c5dfce15b0b9); `repo.json`, `source.json`)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.7-b9...apple-music-timbre-gecko-v0.2.8-b10)
+
 ## [apple-music-timbre-gecko-v0.2.7-b9] - 2026-11-07
 
 ## Verified changes since apple-music-timbre-gecko-v0.2.6-b8
