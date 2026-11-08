@@ -1,5 +1,40 @@
 # Changelog
 
+## [timbre-radio-v0.1.0-b1] - 2026-11-07
+
+## Verified changes since project start
+
+- Add standalone Timbre Radio native Gecko shell with cached engine packaging ([`dc2a0af9`](https://github.com/soum91/apple-music-with-timbre/commit/dc2a0af9149c17c81b9ccf903262f6938f3d632b); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/README.md`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, and 5 more)
+- Publish FlareStore 0.3.0 feed metadata ([`0fb84bb3`](https://github.com/soum91/apple-music-with-timbre/commit/0fb84bb3664294790752c249b4d83c395f76f1e3); `source.json`)
+- Set IPA bundle version to 0.3.0 build 3 ([`856a109c`](https://github.com/soum91/apple-music-with-timbre/commit/856a109cd4d1007d3749f4044499c53635a5823a); `AppleMusicTimbre/project.yml`)
+- Show installed version and document web radio experiment ([`835f97f2`](https://github.com/soum91/apple-music-with-timbre/commit/835f97f2afa82c09de64668cba2c0020600f1ded); `AppleMusicTimbre/README.md`, `AppleMusicTimbre/Sources/App.swift`, `AppleMusicTimbre/Sources/WebRadio.swift`, and 1 more)
+- Add Apple Music web radio and experimental Timbre access probe ([`ff8e09b4`](https://github.com/soum91/apple-music-with-timbre/commit/ff8e09b4e49abae08e5444bbc15f9b023242ba68); `.github/workflows/standalone.yml`, `AppleMusicTimbre/Sources/App.swift`, `AppleMusicTimbre/Sources/WebRadio.swift`, and 1 more)
+- Enforce visible installed version/build across app releases ([`352cfc80`](https://github.com/soum91/apple-music-with-timbre/commit/352cfc80eef8967d7f2fec69320bc144ca685f70); `.github/workflows/build.yml`, `.github/workflows/standalone.yml`, `.github/workflows/version-ui.yml`, and 2 more)
+- Show installed app version and build in Library ([`b764ae16`](https://github.com/soum91/apple-music-with-timbre/commit/b764ae1649e8b80fa91f018ddb5f6ad21dcc6862); `AppleMusicTimbre/Sources/App.swift`)
+- Publish 0.2.0 Drive feed and document MusicKit client capabilities ([`b06950b6`](https://github.com/soum91/apple-music-with-timbre/commit/b06950b64ef36503e366549eab04a79afee9c03e); `AppleMusicTimbre/README.md`, `README.md`, `scripts/make-source.mjs`, and 1 more)
+- Keep five primary music tabs and place Timbre tools in Library ([`afab22e6`](https://github.com/soum91/apple-music-with-timbre/commit/afab22e659d904778601f63e28abdb10c72d1c2a); `AppleMusicTimbre/Sources/App.swift`)
+- Add Home Browse Radio collection pages and full queue player ([`c245eafe`](https://github.com/soum91/apple-music-with-timbre/commit/c245eafe0cc7b7700ba1591f827ea904fc1be778); `.github/workflows/standalone.yml`, `AppleMusicTimbre/Sources/App.swift`, `AppleMusicTimbre/Sources/Catalog.swift`, and 2 more)
+- Support Apple Music radio stations without subscription ([`d40a6a05`](https://github.com/soum91/apple-music-with-timbre/commit/d40a6a0501260935e75fe997f724a9898a4dea3d); `AppleMusicTimbre/README.md`, `AppleMusicTimbre/Sources/App.swift`, `AppleMusicTimbre/Sources/MusicModel.swift`)
+- Add Drive-backed FlareStore manifest and first-build handoff ([`a222c11d`](https://github.com/soum91/apple-music-with-timbre/commit/a222c11db1b1cd5c2ab5fc58f6897ced12c41e7d); `README.md`, `scripts/make-source.mjs`, `source.json`)
+- Use explicit geometry types in app icon generator ([`9aa5feb3`](https://github.com/soum91/apple-music-with-timbre/commit/9aa5feb3d6ec5d1221980c2adc483635d396b2ec); `AppleMusicTimbre/scripts/icon.swift`)
+- Build standalone MusicKit client with Timbre local audio EQ ([`a05480ce`](https://github.com/soum91/apple-music-with-timbre/commit/a05480ce938c6519568503b428d8d74784b23a61); `.github/workflows/build.yml`, `.github/workflows/standalone.yml`, `.gitignore`, and 7 more)
+- docs: pin probe target to supplied iOS 16 Music build ([`bfe7ecb6`](https://github.com/soum91/apple-music-with-timbre/commit/bfe7ecb6fd60332a6b00bf2a735d97cfa6816f91); `README.md`)
+- probe: log public audio session activation state ([`4f939d14`](https://github.com/soum91/apple-music-with-timbre/commit/4f939d14ba2b3e7d8f0a311dbb2dbe338ac780d5); `Tweak.xm`)
+- ci: preserve Theos path across workflow steps ([`56bb6ea6`](https://github.com/soum91/apple-music-with-timbre/commit/56bb6ea6bd8303946cb25d4fb01a10cca1227945); `.github/workflows/build.yml`)
+- ci: build rootless probe package and upload artifact ([`1c6d8c01`](https://github.com/soum91/apple-music-with-timbre/commit/1c6d8c019c46a3b66a136129bd7a3c458f914230); `.github/workflows/build.yml`)
+- docs: add build and device log collection steps ([`8d6d0c44`](https://github.com/soum91/apple-music-with-timbre/commit/8d6d0c4428129e84d51be5ac8121a63d680d4bde); `README.md`)
+- chore: remove obsolete package filter filename ([`bc389962`](https://github.com/soum91/apple-music-with-timbre/commit/bc38996251ff511e9737db26847c3f9bc7f6ea42); `filter.plist`)
+- build: add Apple Music-only injection filter ([`f8d2d33d`](https://github.com/soum91/apple-music-with-timbre/commit/f8d2d33d695b33de21267ad368f761f8db5bfcd4); `AppleMusicTimbreProbe.plist`)
+- fix: observe supported app and audio session notifications ([`3daf7fa1`](https://github.com/soum91/apple-music-with-timbre/commit/3daf7fa13915a6cc8a4cb19881fbe188c136c2c1); `Tweak.xm`)
+- build: configure rootless Apple Music probe package ([`6cfdbaa5`](https://github.com/soum91/apple-music-with-timbre/commit/6cfdbaa5ba80ec8ae2f9ed49b18bf6a597dfe51c); `Makefile`)
+- feat: add Tweak.xm for session-only probe ([`2379c0ec`](https://github.com/soum91/apple-music-with-timbre/commit/2379c0ec8d870c42f7367d9b8aa84dcadc6c5594); `Tweak.xm`)
+- feat: add filter.plist for session-only probe ([`94fb98f8`](https://github.com/soum91/apple-music-with-timbre/commit/94fb98f82e7e7f27d24a5b9f2baec97bcc472bbe); `filter.plist`)
+- feat: add control for session-only probe ([`2807b8ba`](https://github.com/soum91/apple-music-with-timbre/commit/2807b8ba868baac12519fabda524e7ac655b422a); `control`)
+- feat: add Makefile for session-only probe ([`f44c5bdf`](https://github.com/soum91/apple-music-with-timbre/commit/f44c5bdfec43a6536c9cc4d6b6f71bf76c8b524f); `Makefile`)
+- docs: define Apple Music feasibility probe scope ([`429d3388`](https://github.com/soum91/apple-music-with-timbre/commit/429d3388524a5aefb1c05a10ac74dd3a452bd0b3); `README.md`)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/commits/timbre-radio-v0.1.0-b1)
+
 ## [apple-music-timbre-gecko-v0.2.8-b10] - 2026-11-07
 
 ## Verified changes since apple-music-timbre-gecko-v0.2.7-b9
