@@ -1,5 +1,15 @@
 # Changelog
 
+## [apple-music-timbre-gecko-v0.2.5-b7] - 2026-11-07
+
+## Verified changes since apple-music-timbre-gecko-v0.2.4-b6
+
+- probe: handle Core Audio nonblocking callback pointer types on Xcode 26.5 ([`1cfc7697`](https://github.com/soum91/apple-music-with-timbre/commit/1cfc7697e35ee1e2a7084a7a9dde811a3f197297); `AppleMusicGecko/Sources/NativeAudioProbe.mm`)
+- probe: inspect app-local native audio callbacks without PCM capture ([`5d84d5c8`](https://github.com/soum91/apple-music-with-timbre/commit/5d84d5c844529c1d3c9cec6665f5b6de33168ae4); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/Sources/NativeAudioProbe.h`, `AppleMusicGecko/Sources/NativeAudioProbe.mm`, and 5 more)
+- catalog: publish Apple Music + Timbre Gecko 0.2.4 build 5 ([`a4ee859f`](https://github.com/soum91/apple-music-with-timbre/commit/a4ee859f02616229f9facc3b4dff775dcf452edf); `repo.json`, `source.json`)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.4-b6...apple-music-timbre-gecko-v0.2.5-b7)
+
 ## [apple-music-timbre-gecko-v0.2.4-b6] - 2026-11-07
 
 ## Verified changes since apple-music-timbre-gecko-v0.2.3-b5
