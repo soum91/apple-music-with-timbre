@@ -1,123 +1,12 @@
 # Changelog
 
-## [timbre-radio-v0.1.0-b1] - 2026-11-07
+## Apple Music + Timbre (Gecko) 0.2.9 build 11 (Gecko lifecycle rollback, 2026-11-07)
 
-## Verified changes since project start
+- Reverted build 10's delayed `GeckoSession.setActive`, `setAddonTabActive`, `setFocused` calls and the `GeckoView.becomeFirstResponder()` call after the browser view attached. The user observed worse Gecko playback and a blank browser surface in build 10.
+- Restored exactly the prior Gecko view-attachment lifecycle from build 9 while keeping the independent audible native iOS test, native MusicKit diagnostics, and Gecko audio output test.
+- Updated the app and embedded Safari extension to **0.2.9 (build 11)**. The cached Gecko engine and pinned Timbre source are unchanged.
 
-- Add standalone Timbre Radio native Gecko shell with cached engine packaging ([`dc2a0af9`](https://github.com/soum91/apple-music-with-timbre/commit/dc2a0af9149c17c81b9ccf903262f6938f3d632b); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/README.md`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, and 5 more)
-- Publish FlareStore 0.3.0 feed metadata ([`0fb84bb3`](https://github.com/soum91/apple-music-with-timbre/commit/0fb84bb3664294790752c249b4d83c395f76f1e3); `source.json`)
-- Set IPA bundle version to 0.3.0 build 3 ([`856a109c`](https://github.com/soum91/apple-music-with-timbre/commit/856a109cd4d1007d3749f4044499c53635a5823a); `AppleMusicTimbre/project.yml`)
-- Show installed version and document web radio experiment ([`835f97f2`](https://github.com/soum91/apple-music-with-timbre/commit/835f97f2afa82c09de64668cba2c0020600f1ded); `AppleMusicTimbre/README.md`, `AppleMusicTimbre/Sources/App.swift`, `AppleMusicTimbre/Sources/WebRadio.swift`, and 1 more)
-- Add Apple Music web radio and experimental Timbre access probe ([`ff8e09b4`](https://github.com/soum91/apple-music-with-timbre/commit/ff8e09b4e49abae08e5444bbc15f9b023242ba68); `.github/workflows/standalone.yml`, `AppleMusicTimbre/Sources/App.swift`, `AppleMusicTimbre/Sources/WebRadio.swift`, and 1 more)
-- Enforce visible installed version/build across app releases ([`352cfc80`](https://github.com/soum91/apple-music-with-timbre/commit/352cfc80eef8967d7f2fec69320bc144ca685f70); `.github/workflows/build.yml`, `.github/workflows/standalone.yml`, `.github/workflows/version-ui.yml`, and 2 more)
-- Show installed app version and build in Library ([`b764ae16`](https://github.com/soum91/apple-music-with-timbre/commit/b764ae1649e8b80fa91f018ddb5f6ad21dcc6862); `AppleMusicTimbre/Sources/App.swift`)
-- Publish 0.2.0 Drive feed and document MusicKit client capabilities ([`b06950b6`](https://github.com/soum91/apple-music-with-timbre/commit/b06950b64ef36503e366549eab04a79afee9c03e); `AppleMusicTimbre/README.md`, `README.md`, `scripts/make-source.mjs`, and 1 more)
-- Keep five primary music tabs and place Timbre tools in Library ([`afab22e6`](https://github.com/soum91/apple-music-with-timbre/commit/afab22e659d904778601f63e28abdb10c72d1c2a); `AppleMusicTimbre/Sources/App.swift`)
-- Add Home Browse Radio collection pages and full queue player ([`c245eafe`](https://github.com/soum91/apple-music-with-timbre/commit/c245eafe0cc7b7700ba1591f827ea904fc1be778); `.github/workflows/standalone.yml`, `AppleMusicTimbre/Sources/App.swift`, `AppleMusicTimbre/Sources/Catalog.swift`, and 2 more)
-- Support Apple Music radio stations without subscription ([`d40a6a05`](https://github.com/soum91/apple-music-with-timbre/commit/d40a6a0501260935e75fe997f724a9898a4dea3d); `AppleMusicTimbre/README.md`, `AppleMusicTimbre/Sources/App.swift`, `AppleMusicTimbre/Sources/MusicModel.swift`)
-- Add Drive-backed FlareStore manifest and first-build handoff ([`a222c11d`](https://github.com/soum91/apple-music-with-timbre/commit/a222c11db1b1cd5c2ab5fc58f6897ced12c41e7d); `README.md`, `scripts/make-source.mjs`, `source.json`)
-- Use explicit geometry types in app icon generator ([`9aa5feb3`](https://github.com/soum91/apple-music-with-timbre/commit/9aa5feb3d6ec5d1221980c2adc483635d396b2ec); `AppleMusicTimbre/scripts/icon.swift`)
-- Build standalone MusicKit client with Timbre local audio EQ ([`a05480ce`](https://github.com/soum91/apple-music-with-timbre/commit/a05480ce938c6519568503b428d8d74784b23a61); `.github/workflows/build.yml`, `.github/workflows/standalone.yml`, `.gitignore`, and 7 more)
-- docs: pin probe target to supplied iOS 16 Music build ([`bfe7ecb6`](https://github.com/soum91/apple-music-with-timbre/commit/bfe7ecb6fd60332a6b00bf2a735d97cfa6816f91); `README.md`)
-- probe: log public audio session activation state ([`4f939d14`](https://github.com/soum91/apple-music-with-timbre/commit/4f939d14ba2b3e7d8f0a311dbb2dbe338ac780d5); `Tweak.xm`)
-- ci: preserve Theos path across workflow steps ([`56bb6ea6`](https://github.com/soum91/apple-music-with-timbre/commit/56bb6ea6bd8303946cb25d4fb01a10cca1227945); `.github/workflows/build.yml`)
-- ci: build rootless probe package and upload artifact ([`1c6d8c01`](https://github.com/soum91/apple-music-with-timbre/commit/1c6d8c019c46a3b66a136129bd7a3c458f914230); `.github/workflows/build.yml`)
-- docs: add build and device log collection steps ([`8d6d0c44`](https://github.com/soum91/apple-music-with-timbre/commit/8d6d0c4428129e84d51be5ac8121a63d680d4bde); `README.md`)
-- chore: remove obsolete package filter filename ([`bc389962`](https://github.com/soum91/apple-music-with-timbre/commit/bc38996251ff511e9737db26847c3f9bc7f6ea42); `filter.plist`)
-- build: add Apple Music-only injection filter ([`f8d2d33d`](https://github.com/soum91/apple-music-with-timbre/commit/f8d2d33d695b33de21267ad368f761f8db5bfcd4); `AppleMusicTimbreProbe.plist`)
-- fix: observe supported app and audio session notifications ([`3daf7fa1`](https://github.com/soum91/apple-music-with-timbre/commit/3daf7fa13915a6cc8a4cb19881fbe188c136c2c1); `Tweak.xm`)
-- build: configure rootless Apple Music probe package ([`6cfdbaa5`](https://github.com/soum91/apple-music-with-timbre/commit/6cfdbaa5ba80ec8ae2f9ed49b18bf6a597dfe51c); `Makefile`)
-- feat: add Tweak.xm for session-only probe ([`2379c0ec`](https://github.com/soum91/apple-music-with-timbre/commit/2379c0ec8d870c42f7367d9b8aa84dcadc6c5594); `Tweak.xm`)
-- feat: add filter.plist for session-only probe ([`94fb98f8`](https://github.com/soum91/apple-music-with-timbre/commit/94fb98f82e7e7f27d24a5b9f2baec97bcc472bbe); `filter.plist`)
-- feat: add control for session-only probe ([`2807b8ba`](https://github.com/soum91/apple-music-with-timbre/commit/2807b8ba868baac12519fabda524e7ac655b422a); `control`)
-- feat: add Makefile for session-only probe ([`f44c5bdf`](https://github.com/soum91/apple-music-with-timbre/commit/f44c5bdfec43a6536c9cc4d6b6f71bf76c8b524f); `Makefile`)
-- docs: define Apple Music feasibility probe scope ([`429d3388`](https://github.com/soum91/apple-music-with-timbre/commit/429d3388524a5aefb1c05a10ac74dd3a452bd0b3); `README.md`)
-
-[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/commits/timbre-radio-v0.1.0-b1)
-
-## [apple-music-timbre-gecko-v0.2.8-b10] - 2026-11-07
-
-## Verified changes since apple-music-timbre-gecko-v0.2.7-b9
-
-- fix(gecko): reassert media focus after GeckoView attaches in SwiftUI ([`28360da1`](https://github.com/soum91/apple-music-with-timbre/commit/28360da1c2376aefe22319fc7812450f7f28821a); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, `AppleMusicGecko/project.yml`)
-- catalog: publish Apple Music + Timbre Gecko 0.2.7 build 9 ([`c7e8d325`](https://github.com/soum91/apple-music-with-timbre/commit/c7e8d32581f7c95f78d95a646016c5dfce15b0b9); `repo.json`, `source.json`)
-
-[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.7-b9...apple-music-timbre-gecko-v0.2.8-b10)
-
-## [apple-music-timbre-gecko-v0.2.7-b9] - 2026-11-07
-
-## Verified changes since apple-music-timbre-gecko-v0.2.6-b8
-
-- feat(audio): isolate Gecko silence with native tone and playback-session diagnostics ([`2f180b5c`](https://github.com/soum91/apple-music-with-timbre/commit/2f180b5cd0055f8cbc09c10fd8eb4487398063ef); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/Sources/NativeMusicPlayback.swift`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, and 2 more)
-- fix(feed): use valid entertainment category in both FlareStore catalogs ([`09af5298`](https://github.com/soum91/apple-music-with-timbre/commit/09af52981f5536dc216e3d1af4d5547d0bddbc0f); `repo.json`, `scripts/make-source.mjs`, `scripts/sync_gecko_flarestore.py`, and 1 more)
-- catalog: publish Apple Music + Timbre Gecko 0.2.6 build 8 ([`e7498008`](https://github.com/soum91/apple-music-with-timbre/commit/e7498008eb3b175558f0028834e593f5b480993a); `repo.json`, `source.json`)
-
-[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.6-b8...apple-music-timbre-gecko-v0.2.7-b9)
-
-## [apple-music-timbre-gecko-v0.2.6-b8] - 2026-11-07
-
-## Verified changes since apple-music-timbre-gecko-v0.2.5-b7
-
-- diagnostics: preserve MusicKit screen on token errors and add audible Gecko control tests ([`d9da70c7`](https://github.com/soum91/apple-music-with-timbre/commit/d9da70c7467ea27e7375905d5bce432ae06fa158); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/Resources/audio-output-test.html`, `AppleMusicGecko/Sources/NativeMusicPlayback.swift`, and 2 more)
-- catalog: publish Apple Music + Timbre Gecko 0.2.5 build 7 ([`e9b9eada`](https://github.com/soum91/apple-music-with-timbre/commit/e9b9eadabd8d40cee5504384f8846b321afc96ea); `repo.json`, `source.json`)
-
-[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.5-b7...apple-music-timbre-gecko-v0.2.6-b8)
-
-## [apple-music-timbre-gecko-v0.2.5-b7] - 2026-11-07
-
-## Verified changes since apple-music-timbre-gecko-v0.2.4-b6
-
-- probe: handle Core Audio nonblocking callback pointer types on Xcode 26.5 ([`1cfc7697`](https://github.com/soum91/apple-music-with-timbre/commit/1cfc7697e35ee1e2a7084a7a9dde811a3f197297); `AppleMusicGecko/Sources/NativeAudioProbe.mm`)
-- probe: inspect app-local native audio callbacks without PCM capture ([`5d84d5c8`](https://github.com/soum91/apple-music-with-timbre/commit/5d84d5c844529c1d3c9cec6665f5b6de33168ae4); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/Sources/NativeAudioProbe.h`, `AppleMusicGecko/Sources/NativeAudioProbe.mm`, and 5 more)
-- catalog: publish Apple Music + Timbre Gecko 0.2.4 build 5 ([`a4ee859f`](https://github.com/soum91/apple-music-with-timbre/commit/a4ee859f02616229f9facc3b4dff775dcf452edf); `repo.json`, `source.json`)
-
-[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.4-b6...apple-music-timbre-gecko-v0.2.5-b7)
-
-## [apple-music-timbre-gecko-v0.2.4-b6] - 2026-11-07
-
-## Verified changes since apple-music-timbre-gecko-v0.2.3-b5
-
-- diagnostics: avoid interrupting diagnostic tests with station failure alert ([`25b7ad28`](https://github.com/soum91/apple-music-with-timbre/commit/25b7ad28805d51a07d73d5f7b90e9db9f29f19d4); `AppleMusicGecko/Sources/NativeMusicPlayback.swift`)
-- diagnostics: add copy/share/selectable Gecko EME report and timeouts ([`8916902b`](https://github.com/soum91/apple-music-with-timbre/commit/8916902b08e62109e1ce008f2a14247105a1ddd0); `AppleMusicGecko/Resources/drm-diagnostic.html`)
-- ui: make diagnostics accessible and exportable directly from Apple Music + Timbre ([`475d3fd2`](https://github.com/soum91/apple-music-with-timbre/commit/475d3fd27230d217067e8200aa7363e806988c2b); `AppleMusicGecko/Sources/TimbreRadioAppView.swift`)
-- diagnostics: capture MusicKit catalog failures with actionable domain and code ([`60cbca02`](https://github.com/soum91/apple-music-with-timbre/commit/60cbca02163c5de387496a9a1dcc201f8e97c77c); `AppleMusicGecko/Sources/NativeMusicPlayback.swift`)
-- catalog: publish Apple Music + Timbre Gecko 0.2.3 build 5 ([`85ee52e8`](https://github.com/soum91/apple-music-with-timbre/commit/85ee52e839ef318a919520b47e9ed112f6186c4d); `repo.json`, `source.json`)
-
-[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.3-b5...apple-music-timbre-gecko-v0.2.4-b6)
-
-## [apple-music-timbre-gecko-v0.2.3-b5] - 2026-11-07
-
-## Verified changes since apple-music-timbre-gecko-v0.2.2-b4
-
-- fix(build): quote MusicKit permission purpose text for XcodeGen ([`3d344146`](https://github.com/soum91/apple-music-with-timbre/commit/3d344146675a805d2041574583ee5b2cb9af27c4); `AppleMusicGecko/project.yml`)
-- feat: add native MusicKit playback and embedded Gecko DRM diagnostics ([`9a47da0a`](https://github.com/soum91/apple-music-with-timbre/commit/9a47da0abaea63075b0f81341d7d442df83dc013); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/README.md`, `AppleMusicGecko/Resources/drm-diagnostic.html`, and 5 more)
-- Publish public FlareStore repo for Apple Music + Timbre releases ([`dd36a6b2`](https://github.com/soum91/apple-music-with-timbre/commit/dd36a6b2ba018950a2e18c33e68a7a3db05e68aa); `repo.json`, `source.json`)
-
-[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.2-b4...apple-music-timbre-gecko-v0.2.3-b5)
-
-## [apple-music-timbre-gecko-v0.2.2-b4] - 2026-11-07
-
-## Verified changes since apple-music-timbre-gecko-v0.2.1-b3
-
-- Embed Timbre Safari WebExtension in Apple Music + Timbre IPA ([`918791dc`](https://github.com/soum91/apple-music-with-timbre/commit/918791dcc2654ce82bdfa71fa0a9ba1b975de94a); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/README.md`, `AppleMusicGecko/SafariExtension/SafariWebExtensionHandler.swift`, and 5 more)
-
-[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.1-b3...apple-music-timbre-gecko-v0.2.2-b4)
-
-## [apple-music-timbre-gecko-v0.2.1-b3] - 2026-11-07
-
-## Verified changes since apple-music-timbre-gecko-v0.2.0-b2
-
-- Add protected-media diagnostics and correct Apple Music preview findings ([`8d6fb2da`](https://github.com/soum91/apple-music-with-timbre/commit/8d6fb2da83094d70ecac3e463c1c21a156c4208c); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/README.md`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, and 3 more)
-
-[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.0-b2...apple-music-timbre-gecko-v0.2.1-b3)
-
-## [apple-music-timbre-gecko-v0.2.0-b2] - 2026-11-07
-
-## Verified changes since timbre-radio-v0.1.0-b1
-
-- Correct Gecko app identity to Apple Music + Timbre with full music navigation ([`37358835`](https://github.com/soum91/apple-music-with-timbre/commit/3735883513441d396daf248aa25815109ae955a8); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/README.md`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, and 6 more)
-
-[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/timbre-radio-v0.1.0-b1...apple-music-timbre-gecko-v0.2.0-b2)
+Known limitations: This rollback restores the prior lifecycle but is not a verified fix for Gecko sound. The custom Gecko engine lacks an installed Widevine or FairPlay CDM, and Native MusicKit catalog requests separately fail at developer-token acquisition.
 
 ## Apple Music + Timbre (Gecko) 0.2.8 build 10 (Gecko view activation experiment, 2026-11-07)
 
