@@ -1,5 +1,14 @@
 # Changelog
 
+## [apple-music-timbre-gecko-v0.2.9-b11] - 2026-11-08
+
+## Verified changes since apple-music-timbre-gecko-v0.2.8-b10
+
+- revert(gecko): restore pre-regression browser view lifecycle in 0.2.9 ([`50185558`](https://github.com/soum91/apple-music-with-timbre/commit/501855583e7c58a98762e3ce78f32b13c62859c4); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/Sources/TimbreRadioAppView.swift`, `AppleMusicGecko/project.yml`)
+- catalog: publish Apple Music + Timbre Gecko 0.2.8 build 10 ([`df99a5f4`](https://github.com/soum91/apple-music-with-timbre/commit/df99a5f414f92fa530f444fac37bc56539999b07); `repo.json`, `source.json`)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.8-b10...apple-music-timbre-gecko-v0.2.9-b11)
+
 ## [timbre-radio-v0.1.0-b1] - 2026-11-07
 
 ## Verified changes since project start
