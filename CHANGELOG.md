@@ -1,5 +1,13 @@
 # Changelog
 
+## [apple-music-timbre-gecko-v0.2.2-b4] - 2026-11-07
+
+## Verified changes since apple-music-timbre-gecko-v0.2.1-b3
+
+- Embed Timbre Safari WebExtension in Apple Music + Timbre IPA ([`918791dc`](https://github.com/soum91/apple-music-with-timbre/commit/918791dcc2654ce82bdfa71fa0a9ba1b975de94a); `.github/workflows/timbre-radio.yml`, `AppleMusicGecko/README.md`, `AppleMusicGecko/SafariExtension/SafariWebExtensionHandler.swift`, and 5 more)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.1-b3...apple-music-timbre-gecko-v0.2.2-b4)
+
 ## [apple-music-timbre-gecko-v0.2.1-b3] - 2026-11-07
 
 ## Verified changes since apple-music-timbre-gecko-v0.2.0-b2
