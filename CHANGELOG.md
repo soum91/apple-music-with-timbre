@@ -1,5 +1,17 @@
 # Changelog
 
+## [apple-music-timbre-gecko-v0.2.4-b6] - 2026-11-07
+
+## Verified changes since apple-music-timbre-gecko-v0.2.3-b5
+
+- diagnostics: avoid interrupting diagnostic tests with station failure alert ([`25b7ad28`](https://github.com/soum91/apple-music-with-timbre/commit/25b7ad28805d51a07d73d5f7b90e9db9f29f19d4); `AppleMusicGecko/Sources/NativeMusicPlayback.swift`)
+- diagnostics: add copy/share/selectable Gecko EME report and timeouts ([`8916902b`](https://github.com/soum91/apple-music-with-timbre/commit/8916902b08e62109e1ce008f2a14247105a1ddd0); `AppleMusicGecko/Resources/drm-diagnostic.html`)
+- ui: make diagnostics accessible and exportable directly from Apple Music + Timbre ([`475d3fd2`](https://github.com/soum91/apple-music-with-timbre/commit/475d3fd27230d217067e8200aa7363e806988c2b); `AppleMusicGecko/Sources/TimbreRadioAppView.swift`)
+- diagnostics: capture MusicKit catalog failures with actionable domain and code ([`60cbca02`](https://github.com/soum91/apple-music-with-timbre/commit/60cbca02163c5de387496a9a1dcc201f8e97c77c); `AppleMusicGecko/Sources/NativeMusicPlayback.swift`)
+- catalog: publish Apple Music + Timbre Gecko 0.2.3 build 5 ([`85ee52e8`](https://github.com/soum91/apple-music-with-timbre/commit/85ee52e839ef318a919520b47e9ed112f6186c4d); `repo.json`, `source.json`)
+
+[Inspect exact code changes](https://github.com/soum91/apple-music-with-timbre/compare/apple-music-timbre-gecko-v0.2.3-b5...apple-music-timbre-gecko-v0.2.4-b6)
+
 ## [apple-music-timbre-gecko-v0.2.3-b5] - 2026-11-07
 
 ## Verified changes since apple-music-timbre-gecko-v0.2.2-b4
